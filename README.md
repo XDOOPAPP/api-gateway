@@ -1,194 +1,98 @@
-# FEPA API Gateway
+<p align="center">
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+</p>
 
-> Entry point duy nhất cho hệ thống FEPA Microservices
+[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
+[circleci-url]: https://circleci.com/gh/nestjs/nest
 
-## 📋 Tổng Quan
+  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+    <p align="center">
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
+<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
+<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
+<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
+<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
+  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
+    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
+  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+</p>
+  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
+  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-API Gateway đóng vai trò là **single entry point** cho tất cả client requests, chịu trách nhiệm:
+## Description
 
-- **Routing**: Điều hướng requests đến đúng microservice
-- **Authentication**: Xác thực JWT tokens trước khi forward requests
-- **Rate Limiting**: Giới hạn số lượng requests từ mỗi client
-- **Load Balancing**: Phân tải giữa các instances của service
-- **API Documentation**: Cung cấp Swagger UI cho toàn bộ API
+[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-## 🏗️ Kiến Trúc Tổng Quan
-
-```
-                    ┌─────────────────┐
-                    │     Clients     │
-                    │  (Web/Mobile)   │
-                    └────────┬────────┘
-                             │ HTTPS
-                             ▼
-                    ┌─────────────────┐
-                    │   API Gateway   │
-                    │   (Port 3000)   │
-                    └────────┬────────┘
-                             │ TCP Transport
-        ┌────────────────────┼────────────────────┐
-        │           │        │        │           │
-        ▼           ▼        ▼        ▼           ▼
-   ┌─────────┐ ┌─────────┐ ┌───┐ ┌─────────┐ ┌─────────┐
-   │  Auth   │ │ Expense │ │...│ │   OCR   │ │   AI    │
-   │ :3001   │ │ :3002   │ │   │ │ :3007   │ │ :3008   │
-   └─────────┘ └─────────┘ └───┘ └─────────┘ └─────────┘
-```
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Node.js >= 18.x
-- npm >= 9.x
-- Docker & Docker Compose (optional, cho local development)
-
-### Installation
+## Project setup
 
 ```bash
-# Clone và install dependencies
-cd api-gateway
-npm install
-
-# Copy environment file
-cp .env.example .env
-
-# Start development server
-npm run start:dev
+$ npm install
 ```
 
-### Chạy toàn bộ hệ thống (Docker)
+## Compile and run the project
 
 ```bash
-cd deployment
-docker-compose up -d
+# development
+$ npm run start
+
+# watch mode
+$ npm run start:dev
+
+# production mode
+$ npm run start:prod
 ```
 
-## 📁 Cấu Trúc Thư Mục
-
-```
-api-gateway/
-├── src/
-│   ├── main.ts                      # Bootstrap application
-│   ├── app.module.ts                # Root module
-│   ├── common/
-│   │   ├── guards/
-│   │   │   ├── auth.guard.ts        # JWT authentication guard
-│   │   │   └── rate-limit.guard.ts  # Rate limiting guard
-│   │   ├── filters/
-│   │   │   └── http-exception.filter.ts
-│   │   ├── interceptors/
-│   │   │   ├── logging.interceptor.ts
-│   │   │   └── transform.interceptor.ts
-│   │   └── decorators/
-│   │       └── public.decorator.ts  # Skip auth cho public routes
-│   ├── config/
-│   │   ├── configuration.ts         # Environment config
-│   │   └── services.config.ts       # Microservices connection config
-│   └── modules/
-│       ├── auth/                    # Proxy to auth-service
-│       ├── expenses/                # Proxy to expense-service
-│       ├── budgets/                 # Proxy to budget-service
-│       ├── blogs/                   # Proxy to blog-service
-│       ├── subscriptions/           # Proxy to subscription-service
-│       ├── notifications/           # Proxy to notification-service
-│       ├── ocr/                     # Proxy to ocr-service
-│       └── ai/                      # Proxy to ai-service
-├── test/
-├── docs/
-│   └── ARCHITECTURE.md              # Chi tiết kiến trúc
-├── .env.example
-├── package.json
-├── tsconfig.json
-└── README.md
-```
-
-## 🔌 Port Allocation
-
-| Service              | Port | Description                    |
-| -------------------- | ---- | ------------------------------ |
-| api-gateway          | 3000 | Public HTTP endpoint           |
-| auth-service         | 3001 | Authentication & Authorization |
-| expense-service      | 3002 | Expense management             |
-| budget-service       | 3003 | Budget tracking                |
-| blog-service         | 3004 | Blog/content management        |
-| subscription-service | 3005 | Subscription & billing         |
-| notification-service | 3006 | Push/email notifications       |
-| ocr-service          | 3007 | Receipt OCR processing         |
-| ai-service           | 3008 | AI/ML features                 |
-
-## 🔐 Authentication Flow
-
-```
-Client                Gateway              Auth Service
-  │                      │                      │
-  │── POST /auth/login ──▶                      │
-  │                      │── validate user ────▶│
-  │                      │◀── JWT token ────────│
-  │◀── { token } ────────│                      │
-  │                      │                      │
-  │── GET /expenses ─────▶                      │
-  │   (Bearer token)     │── verify token ─────▶│
-  │                      │◀── { valid, user } ──│
-  │                      │                      │
-  │                      │── forward request ──▶│ Expense Service
-  │◀── { expenses } ─────│◀── { data } ────────│
-```
-
-## 📚 API Documentation
-
-Sau khi start server, truy cập Swagger UI tại:
-
-```
-http://localhost:3000/docs
-```
-
-## 🛠️ Development
-
-### Scripts
+## Run tests
 
 ```bash
-# Development với hot-reload
-npm run start:dev
+# unit tests
+$ npm run test
 
-# Build production
-npm run build
+# e2e tests
+$ npm run test:e2e
 
-# Run production
-npm run start:prod
-
-# Run tests
-npm run test
-
-# Run e2e tests
-npm run test:e2e
-
-# Lint code
-npm run lint
+# test coverage
+$ npm run test:cov
 ```
 
-### Environment Variables
+## Deployment
 
-| Variable            | Default     | Description                     |
-| ------------------- | ----------- | ------------------------------- |
-| `PORT`              | 3000        | Gateway HTTP port               |
-| `NODE_ENV`          | development | Environment mode                |
-| `JWT_SECRET`        | -           | Secret key for JWT verification |
-| `AUTH_SERVICE_HOST` | localhost   | Auth service hostname           |
-| `AUTH_SERVICE_PORT` | 3001        | Auth service port               |
-| ...                 | ...         | (Tương tự cho các service khác) |
+When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
 
-## 📖 Documentation
+If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
 
-- [Chi tiết Kiến trúc](./docs/ARCHITECTURE.md)
-- [API Reference](http://localhost:3000/docs) (Swagger)
+```bash
+$ npm install -g @nestjs/mau
+$ mau deploy
+```
 
-## 🤝 Contributing
+With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
-1. Tạo feature branch từ `develop`
-2. Commit changes với conventional commits
-3. Tạo Pull Request
+## Resources
 
-## 📄 License
+Check out a few resources that may come in handy when working with NestJS:
 
-Private - FEPA Team
+- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
+- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
+- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
+- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
+- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
+- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
+- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
+- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+
+## Support
+
+Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+
+## Stay in touch
+
+- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
+- Website - [https://nestjs.com](https://nestjs.com/)
+- Twitter - [@nestframework](https://twitter.com/nestframework)
+
+## License
+
+Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
