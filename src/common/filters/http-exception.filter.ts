@@ -25,7 +25,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
       if (typeof exceptionResponse === 'object') {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const { message: msg } = exceptionResponse as any;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         message = msg || exception.message;
       } else {
         message = exception.message;

@@ -1,12 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { AppService } from './app.service';
 
 @ApiTags('Health')
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
   @Get('health')
   @ApiOperation({ summary: 'Health check endpoint' })
   getHealth() {
@@ -20,7 +17,11 @@ export class AppController {
 
   @Get()
   @ApiOperation({ summary: 'Welcome message' })
-  getHello(): string {
-    return this.appService.getHello();
+  getHello() {
+    return {
+      message: 'FEPA API Gateway',
+      version: '1.0.0',
+      docs: '/docs',
+    };
   }
 }

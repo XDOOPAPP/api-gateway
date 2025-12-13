@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { gatewayConfig } from './config/gateway.config';
+import { PassportModule } from '@nestjs/passport';
+import { AppController } from './app.controller.js';
+import { gatewayConfig } from './config/gateway.config.js';
+import { JwtStrategy } from './common/strategies/jwt.strategy.js';
+import { ExpensesModule } from './expenses/expenses.module.js';
+import { CategoriesModule } from './categories/categories.module.js';
 
 @Module({
   imports: [
@@ -78,8 +81,11 @@ import { gatewayConfig } from './config/gateway.config';
         inject: [ConfigService],
       },
     ]),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+    ExpensesModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [JwtStrategy],
 })
 export class AppModule {}
