@@ -7,6 +7,7 @@ import { gatewayConfig } from './config/gateway.config.js';
 import { JwtStrategy } from './common/strategies/jwt.strategy.js';
 import { ExpensesModule } from './expenses/expenses.module.js';
 import { CategoriesModule } from './categories/categories.module.js';
+import { BlogsModule } from './blogs/blogs.module';
 
 @Module({
   imports: [
@@ -84,6 +85,7 @@ import { CategoriesModule } from './categories/categories.module.js';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     ExpensesModule,
     CategoriesModule,
+    BlogsModule,
   ],
   controllers: [AppController],
   providers: [JwtStrategy],

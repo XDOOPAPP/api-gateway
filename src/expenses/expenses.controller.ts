@@ -11,21 +11,23 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { firstValueFrom } from 'rxjs';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
+import { RolesGuard } from '../common/guards/roles.guard.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 
 @ApiTags('Expenses')
 @Controller('expenses')
-@ApiBearerAuth('access-token')
-@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class ExpensesController {
   constructor(
     @Inject('EXPENSE_SERVICE') private readonly expenseClient: ClientProxy,
-  ) {}
+  ) { }
 
   @Post()
+  @ApiOperation({ summary: 'Create a new expense' })
   async create(
     @Body() body: any,
     @CurrentUser('userId') userId: string,
@@ -36,6 +38,7 @@ export class ExpensesController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all expenses' })
   async findAll(
     @Query() query: any,
     @CurrentUser('userId') userId: string,
@@ -46,6 +49,7 @@ export class ExpensesController {
   }
 
   @Get('summary')
+  @ApiOperation({ summary: 'Get expense summary' })
   async getSummary(
     @Query() query: any,
     @CurrentUser('userId') userId: string,
@@ -56,6 +60,7 @@ export class ExpensesController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get expense by ID' })
   async findOne(
     @Param('id') id: string,
     @CurrentUser('userId') userId: string,
@@ -66,6 +71,7 @@ export class ExpensesController {
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Update expense' })
   async update(
     @Param('id') id: string,
     @Body() body: any,
@@ -77,6 +83,7 @@ export class ExpensesController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete expense' })
   async remove(
     @Param('id') id: string,
     @CurrentUser('userId') userId: string,

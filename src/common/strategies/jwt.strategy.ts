@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 export interface JwtPayload {
   userId: string;
   email?: string;
+  role: string; // Add role
   iat?: number;
   exp?: number;
 }
@@ -20,7 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  validate(payload: JwtPayload): { userId: string; email?: string } {
+  validate(payload: JwtPayload): { userId: string; email?: string; role: string } {
     if (!payload.userId) {
       throw new UnauthorizedException('Invalid token payload');
     }
@@ -28,6 +29,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     return {
       userId: payload.userId,
       email: payload.email,
+      role: payload.role, // Return role
     };
   }
 }
