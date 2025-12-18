@@ -21,28 +21,28 @@ import { RolesGuard } from '../common/guards/roles.guard.js';
 @Controller('blogs')
 export class BlogsController {
   constructor(
-    @Inject('BLOG_SERVICE') private readonly blogsService: ClientProxy,
-  ) { }
+    @Inject('BLOG_SERVICE') private readonly blogClient: ClientProxy,
+  ) {}
 
   @Post()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @ApiOperation({ summary: 'Create blog (Admin only)' })
-  async create(@Body() body: any) {
-    return firstValueFrom(this.blogsService.send('blog.create', body));
+  async create(@Body() body: any): Promise<any> {
+    return firstValueFrom(this.blogClient.send('blog.create', body));
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all blogs (Public)' })
-  async findAll(@Query() query: any) {
-    return firstValueFrom(this.blogsService.send('blog.find_all', query));
+  async findAll(@Query() query: any): Promise<any> {
+    return firstValueFrom(this.blogClient.send('blog.find_all', query));
   }
 
   @Get(':slug')
   @ApiOperation({ summary: 'Get blog by slug (Public)' })
-  async findBySlug(@Param('slug') slug: string) {
-    return firstValueFrom(this.blogsService.send('blog.find_by_slug', slug));
+  async findBySlug(@Param('slug') slug: string): Promise<any> {
+    return firstValueFrom(this.blogClient.send('blog.find_by_slug', slug));
   }
 
   @Patch(':id')
@@ -50,8 +50,13 @@ export class BlogsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @ApiOperation({ summary: 'Update blog (Admin only)' })
-  async update(@Param('id') id: string, @Body() body: any) {
-    return firstValueFrom(this.blogsService.send('blog.update', { id, data: body }));
+  async update(
+    @Param('id') id: string,
+    @Body() body: Promise<any>,
+  ): Promise<any> {
+    return firstValueFrom(
+      this.blogClient.send('blog.update', { id, data: body }),
+    );
   }
 
   @Delete(':id')
@@ -59,7 +64,7 @@ export class BlogsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @ApiOperation({ summary: 'Delete blog (Admin only)' })
-  async remove(@Param('id') id: string) {
-    return firstValueFrom(this.blogsService.send('blog.delete', id));
+  async remove(@Param('id') id: string): Promise<any> {
+    return firstValueFrom(this.blogClient.send('blog.delete', id));
   }
 }

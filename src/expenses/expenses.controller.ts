@@ -24,7 +24,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 export class ExpensesController {
   constructor(
     @Inject('EXPENSE_SERVICE') private readonly expenseClient: ClientProxy,
-  ) { }
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new expense' })

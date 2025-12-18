@@ -18,4 +18,4 @@ import { ConfigService } from '@nestjs/config';
   ],
   controllers: [BlogsController],
 })
-export class BlogsModule { }
+export class BlogsModule {}

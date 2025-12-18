@@ -8,7 +8,7 @@ import { firstValueFrom } from 'rxjs';
 export class CategoriesController {
   constructor(
     @Inject('EXPENSE_SERVICE') private readonly expenseClient: ClientProxy,
-  ) { }
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Get all expense categories (Public)' })
