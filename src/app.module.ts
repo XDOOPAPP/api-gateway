@@ -5,6 +5,7 @@ import { PassportModule } from '@nestjs/passport';
 import { AppController } from './app.controller.js';
 import { gatewayConfig } from './config/gateway.config.js';
 import { JwtStrategy } from './common/strategies/jwt.strategy.js';
+import { AuthModule } from './auth/auth.module.js';
 import { ExpensesModule } from './expenses/expenses.module.js';
 import { CategoriesModule } from './categories/categories.module.js';
 import { BlogsModule } from './blogs/blogs.module';
@@ -84,6 +85,7 @@ import { BudgetsModule } from './budgets/budgets.module';
       },
     ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
+    AuthModule,
     ExpensesModule,
     CategoriesModule,
     BlogsModule,
