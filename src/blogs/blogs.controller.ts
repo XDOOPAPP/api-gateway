@@ -22,12 +22,12 @@ import { RolesGuard } from '../common/guards/roles.guard.js';
 export class BlogsController {
   constructor(
     @Inject('BLOG_SERVICE') private readonly blogClient: ClientProxy,
-  ) {}
+  ) { }
 
   @Post()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Create blog (Admin only)' })
   async create(@Body() body: any): Promise<any> {
     return firstValueFrom(this.blogClient.send('blog.create', body));
@@ -48,7 +48,7 @@ export class BlogsController {
   @Patch(':id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Update blog (Admin only)' })
   async update(
     @Param('id') id: string,
@@ -62,7 +62,7 @@ export class BlogsController {
   @Delete(':id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Delete blog (Admin only)' })
   async remove(@Param('id') id: string): Promise<any> {
     return firstValueFrom(this.blogClient.send('blog.delete', id));
