@@ -8,7 +8,7 @@ import { JwtStrategy } from './common/strategies/jwt.strategy.js';
 import { ExpensesModule } from './expenses/expenses.module.js';
 import { CategoriesModule } from './categories/categories.module.js';
 import { BlogsModule } from './blogs/blogs.module';
-import { AuthModule } from './auth/auth.module';
+import { BudgetsModule } from './budgets/budgets.module';
 
 @Module({
   imports: [
@@ -87,9 +87,9 @@ import { AuthModule } from './auth/auth.module';
     ExpensesModule,
     CategoriesModule,
     BlogsModule,
-    AuthModule,
+    BudgetsModule,
   ],
   controllers: [AppController],
   providers: [JwtStrategy],
 })
-export class AppModule {}
+export class AppModule { }
