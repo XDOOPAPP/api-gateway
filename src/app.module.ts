@@ -22,64 +22,112 @@ import { BudgetsModule } from './budgets/budgets.module';
       {
         name: 'AUTH_SERVICE',
         useFactory: (configService: ConfigService) => ({
-          transport: Transport.TCP,
-          options: configService.get('services.auth'),
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('rabbitmq.url') || 'amqp://localhost:5672'],
+            queue: 'auth_queue',
+            queueOptions: {
+              durable: true,
+            },
+          },
         }),
         inject: [ConfigService],
       },
       {
         name: 'EXPENSE_SERVICE',
         useFactory: (configService: ConfigService) => ({
-          transport: Transport.TCP,
-          options: configService.get('services.expense'),
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('rabbitmq.url') || 'amqp://localhost:5672'],
+            queue: 'expense_queue',
+            queueOptions: {
+              durable: true,
+            },
+          },
         }),
         inject: [ConfigService],
       },
       {
         name: 'BUDGET_SERVICE',
         useFactory: (configService: ConfigService) => ({
-          transport: Transport.TCP,
-          options: configService.get('services.budget'),
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('rabbitmq.url') || 'amqp://localhost:5672'],
+            queue: 'budget_queue',
+            queueOptions: {
+              durable: true,
+            },
+          },
         }),
         inject: [ConfigService],
       },
       {
         name: 'BLOG_SERVICE',
         useFactory: (configService: ConfigService) => ({
-          transport: Transport.TCP,
-          options: configService.get('services.blog'),
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('rabbitmq.url') || 'amqp://localhost:5672'],
+            queue: 'blog_queue',
+            queueOptions: {
+              durable: true,
+            },
+          },
         }),
         inject: [ConfigService],
       },
       {
         name: 'SUBSCRIPTION_SERVICE',
         useFactory: (configService: ConfigService) => ({
-          transport: Transport.TCP,
-          options: configService.get('services.subscription'),
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('rabbitmq.url') || 'amqp://localhost:5672'],
+            queue: 'subscription_queue',
+            queueOptions: {
+              durable: true,
+            },
+          },
         }),
         inject: [ConfigService],
       },
       {
         name: 'NOTIFICATION_SERVICE',
         useFactory: (configService: ConfigService) => ({
-          transport: Transport.TCP,
-          options: configService.get('services.notification'),
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('rabbitmq.url') || 'amqp://localhost:5672'],
+            queue: 'notification_queue',
+            queueOptions: {
+              durable: true,
+            },
+          },
         }),
         inject: [ConfigService],
       },
       {
         name: 'OCR_SERVICE',
         useFactory: (configService: ConfigService) => ({
-          transport: Transport.TCP,
-          options: configService.get('services.ocr'),
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('rabbitmq.url') || 'amqp://localhost:5672'],
+            queue: 'ocr_queue',
+            queueOptions: {
+              durable: true,
+            },
+          },
         }),
         inject: [ConfigService],
       },
       {
         name: 'AI_SERVICE',
         useFactory: (configService: ConfigService) => ({
-          transport: Transport.TCP,
-          options: configService.get('services.ai'),
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('rabbitmq.url') || 'amqp://localhost:5672'],
+            queue: 'ai_queue',
+            queueOptions: {
+              durable: true,
+            },
+          },
         }),
         inject: [ConfigService],
       },

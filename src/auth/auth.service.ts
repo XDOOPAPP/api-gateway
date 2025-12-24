@@ -13,7 +13,7 @@ import { AxiosResponse } from 'axios';
 export class AuthService {
   private authServiceUrl = 'http://localhost:3001/api/v1/auth';
 
-  constructor(private readonly httpService: HttpService) { }
+  constructor(private readonly httpService: HttpService) {}
 
   private handleError(error: any, defaultMessage: string) {
     throw new HttpException(

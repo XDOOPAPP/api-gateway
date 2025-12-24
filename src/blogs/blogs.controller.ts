@@ -22,7 +22,7 @@ import { RolesGuard } from '../common/guards/roles.guard.js';
 export class BlogsController {
   constructor(
     @Inject('BLOG_SERVICE') private readonly blogClient: ClientProxy,
-  ) { }
+  ) {}
 
   @Post()
   @ApiBearerAuth()
