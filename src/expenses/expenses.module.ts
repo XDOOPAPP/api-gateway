@@ -9,8 +9,14 @@ import { ExpensesController } from './expenses.controller.js';
       {
         name: 'EXPENSE_SERVICE',
         useFactory: (configService: ConfigService) => ({
-          transport: Transport.TCP,
-          options: configService.get('services.expense'),
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('rabbitmq.url') || 'amqp://localhost:5672'],
+            queue: 'expense_queue',
+            queueOptions: {
+              durable: true,
+            },
+          },
         }),
         inject: [ConfigService],
       },
@@ -18,4 +24,4 @@ import { ExpensesController } from './expenses.controller.js';
   ],
   controllers: [ExpensesController],
 })
-export class ExpensesModule {}
+export class ExpensesModule { }

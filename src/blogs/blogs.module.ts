@@ -9,8 +9,14 @@ import { ConfigService } from '@nestjs/config';
       {
         name: 'BLOG_SERVICE',
         useFactory: (configService: ConfigService) => ({
-          transport: Transport.TCP,
-          options: configService.get('services.blog'),
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('rabbitmq.url') || 'amqp://localhost:5672'],
+            queue: 'blog_queue',
+            queueOptions: {
+              durable: true,
+            },
+          },
         }),
         inject: [ConfigService],
       },
@@ -18,4 +24,4 @@ import { ConfigService } from '@nestjs/config';
   ],
   controllers: [BlogsController],
 })
-export class BlogsModule {}
+export class BlogsModule { }
