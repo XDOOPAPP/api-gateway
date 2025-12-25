@@ -10,6 +10,7 @@ import { ExpensesModule } from './expenses/expenses.module.js';
 import { CategoriesModule } from './categories/categories.module.js';
 import { BlogsModule } from './blogs/blogs.module';
 import { BudgetsModule } from './budgets/budgets.module';
+import { OcrsModule } from './ocrs/ocrs.module';
 
 @Module({
   imports: [
@@ -138,6 +139,7 @@ import { BudgetsModule } from './budgets/budgets.module';
     CategoriesModule,
     BlogsModule,
     BudgetsModule,
+    OcrsModule,
   ],
   controllers: [AppController],
   providers: [JwtStrategy],
