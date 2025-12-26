@@ -8,7 +8,12 @@ import {
   HttpStatus,
   Req,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import type { Request } from 'express';
 import { AuthService } from './auth.service.js';
@@ -22,7 +27,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto.js';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Register new account' })
@@ -35,7 +40,7 @@ export class AuthController {
       },
     },
   })
-  async register(@Body() registerDto: RegisterDto) {
+  async register(@Body() registerDto: RegisterDto): Promise<any> {
     return this.authService.register(registerDto);
   }
 
@@ -51,7 +56,7 @@ export class AuthController {
       },
     },
   })
-  async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
+  async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto): Promise<any> {
     return this.authService.verifyOtp(verifyOtpDto);
   }
 
@@ -67,7 +72,7 @@ export class AuthController {
       },
     },
   })
-  async login(@Body() loginDto: LoginDto) {
+  async login(@Body() loginDto: LoginDto): Promise<any> {
     return this.authService.login(loginDto);
   }
 
@@ -82,7 +87,7 @@ export class AuthController {
       },
     },
   })
-  async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
+  async refresh(@Body() refreshTokenDto: RefreshTokenDto): Promise<any> {
     return this.authService.refresh(refreshTokenDto);
   }
 
@@ -102,7 +107,7 @@ export class AuthController {
       },
     },
   })
-  async getProfile(@Req() request: Request) {
+  async getProfile(@Req() request: Request): Promise<any> {
     const token = request.headers.authorization?.split(' ')[1];
     if (!token) {
       throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
@@ -121,7 +126,9 @@ export class AuthController {
       },
     },
   })
-  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+  async forgotPassword(
+    @Body() forgotPasswordDto: ForgotPasswordDto,
+  ): Promise<any> {
     return this.authService.forgotPassword(forgotPasswordDto);
   }
 
@@ -136,7 +143,9 @@ export class AuthController {
       },
     },
   })
-  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+  async resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ): Promise<any> {
     return this.authService.resetPassword(resetPasswordDto);
   }
 
@@ -155,7 +164,7 @@ export class AuthController {
       },
     },
   })
-  async verifyToken(@Req() request: Request) {
+  async verifyToken(@Req() request: Request): Promise<any> {
     const token = request.headers.authorization?.split(' ')[1];
     if (!token) {
       throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);

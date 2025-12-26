@@ -2,6 +2,11 @@ export const gatewayConfig = () => ({
   port: parseInt(process.env.PORT ?? '3000', 10),
   nodeEnv: process.env.NODE_ENV || 'development',
 
+  // RabbitMQ
+  rabbitmq: {
+    url: process.env.RABBITMQ_URL || 'amqp://fepa:fepa123@localhost:5672',
+  },
+
   // Services
   services: {
     auth: {

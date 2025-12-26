@@ -1,0 +1,84 @@
+version: "3.8"
+
+services:
+  # RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: api-gateway-rabbitmq
+    ports:
+      - "5672:5672" # AMQP port
+      - "15672:15672" # Management UI
+    environment:
+      - RABBITMQ_DEFAULT_USER=fepa
+      - RABBITMQ_DEFAULT_PASS=fepa123
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - api-gateway-network
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fepa-api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - RABBITMQ_URL=amqp://fepa:fepa123@rabbitmq:5672
+
+      # JWT Configuration
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
+      - JWT_EXPIRATION=${JWT_EXPIRATION:-24h}
+
+      # Service Hosts (for reference, not used with RabbitMQ)
+      - AUTH_SERVICE_HOST=auth-service
+      - AUTH_SERVICE_PORT=3001
+      - EXPENSE_SERVICE_HOST=expense-service
+      - EXPENSE_SERVICE_PORT=3002
+      - BUDGET_SERVICE_HOST=budget-service
+      - BUDGET_SERVICE_PORT=3003
+      - BLOG_SERVICE_HOST=blog-service
+      - BLOG_SERVICE_PORT=3004
+      - SUBSCRIPTION_SERVICE_HOST=subscription-service
+      - SUBSCRIPTION_SERVICE_PORT=3005
+      - NOTIFICATION_SERVICE_HOST=notification-service
+      - NOTIFICATION_SERVICE_PORT=3006
+      - OCR_SERVICE_HOST=ocr-service
+      - OCR_SERVICE_PORT=3007
+      - AI_SERVICE_HOST=ai-service
+      - AI_SERVICE_PORT=3008
+
+      # Rate Limiting
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-60000}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-100}
+
+      # Logging
+      - LOG_LEVEL=${LOG_LEVEL:-debug}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - api-gateway-network
+    restart: unless-stopped
+    volumes:
+      # Mount source code for development (comment out for production)
+      - .:/app
+      - /app/node_modules
+    # Uncomment for development with hot reload
+    # command: npm run start:dev
+
+networks:
+  api-gateway-network:
+    driver: bridge
+
+volumes:
+  rabbitmq_data:

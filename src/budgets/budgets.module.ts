@@ -4,22 +4,25 @@ import { ConfigService, ConfigModule } from '@nestjs/config';
 import { BudgetsController } from './budgets.controller';
 
 @Module({
-    imports: [
-        ClientsModule.registerAsync([
-            {
-                name: 'BUDGET_SERVICE',
-                imports: [ConfigModule],
-                useFactory: (configService: ConfigService) => ({
-                    transport: Transport.TCP,
-                    options: {
-                        host: configService.get('services.budget.host'),
-                        port: configService.get('services.budget.port'),
-                    },
-                }),
-                inject: [ConfigService],
+  imports: [
+    ClientsModule.registerAsync([
+      {
+        name: 'BUDGET_SERVICE',
+        imports: [ConfigModule],
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('rabbitmq.url') || 'amqp://localhost:5672'],
+            queue: 'budget_queue',
+            queueOptions: {
+              durable: true,
             },
-        ]),
-    ],
-    controllers: [BudgetsController],
+          },
+        }),
+        inject: [ConfigService],
+      },
+    ]),
+  ],
+  controllers: [BudgetsController],
 })
 export class BudgetsModule { }
