@@ -21,47 +21,48 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # PostgreSQL for microservices
-  postgres:
-    image: postgres:15-alpine
-    container_name: fepa-postgres
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER=fepa
-      - POSTGRES_PASSWORD=fepa123
-      - POSTGRES_DB=fepa_db
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - fepa-network
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U fepa" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
+  # PostgreSQL and RabbitMQ are provided by expense-service
+  # Uncomment below if running standalone
 
-  # RabbitMQ Message Broker
-  rabbitmq:
-    image: rabbitmq:3.12-management-alpine
-    container_name: fepa-rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    environment:
-      - RABBITMQ_DEFAULT_USER=fepa
-      - RABBITMQ_DEFAULT_PASS=fepa123
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    networks:
-      - fepa-network
-    healthcheck:
-      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: fepa-postgres
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     - POSTGRES_USER=fepa
+  #     - POSTGRES_PASSWORD=fepa123
+  #     - POSTGRES_DB=fepa_db
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - fepa-network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U fepa"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   restart: unless-stopped
+
+  # rabbitmq:
+  #   image: rabbitmq:3.12-management-alpine
+  #   container_name: fepa-rabbitmq
+  #   ports:
+  #     - "5672:5672"
+  #     - "15672:15672"
+  #   environment:
+  #     - RABBITMQ_DEFAULT_USER=fepa
+  #     - RABBITMQ_DEFAULT_PASS=fepa123
+  #   volumes:
+  #     - rabbitmq_data:/var/lib/rabbitmq
+  #   networks:
+  #     - fepa-network
+  #   healthcheck:
+  #     test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   restart: unless-stopped
 
   # API Gateway
   api-gateway:
@@ -74,14 +75,12 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3000
-      - RABBITMQ_URL=amqp://fepa:fepa123@rabbitmq:5672
+      - RABBITMQ_URL=amqp://fepa:fepa123@fepa-rabbitmq:5672
       - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
       - JWT_EXPIRATION=${JWT_EXPIRATION:-24h}
-      - AUTH_SERVICE_HOST=auth-service
+      - AUTH_SERVICE_HOST=fepa-auth-service
       - AUTH_SERVICE_PORT=3001
     depends_on:
-      rabbitmq:
-        condition: service_healthy
       auth-service:
         condition: service_started
     networks:
@@ -102,7 +101,7 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3001
-      - MONGODB_URI=mongodb://fepa:fepa123@mongodb:27017/fepa_auth?authSource=admin
+      - MONGODB_URI=mongodb://fepa:fepa123@fepa-mongodb:27017/fepa_auth?authSource=admin
       - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
       - JWT_EXPIRATION=${JWT_EXPIRATION:-24h}
     depends_on:
@@ -117,9 +116,10 @@ services:
 
 networks:
   fepa-network:
-    driver: bridge
+    name: expense-service_fepa-network
+    external: true # Use network created by expense-service
 
 volumes:
   mongodb_data:
-  postgres_data:
-  rabbitmq_data:
+    # postgres_data:
+    # rabbitmq_data:
