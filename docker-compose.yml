@@ -116,8 +116,7 @@ services:
 
 networks:
   fepa-network:
-    name: expense-service_fepa-network
-    external: true # Use network created by expense-service
+    driver: bridge # API Gateway creates the network
 
 volumes:
   mongodb_data:
