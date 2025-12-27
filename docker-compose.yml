@@ -101,7 +101,7 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3001
-      - MONGODB_URI=mongodb://fepa:fepa123@fepa-mongodb:27017/fepa_auth?authSource=admin
+      - MONGO_URL=mongodb://fepa:fepa123@fepa-mongodb:27017/fepa_auth?authSource=admin
       - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
       - JWT_EXPIRATION=${JWT_EXPIRATION:-24h}
     depends_on:
@@ -110,9 +110,9 @@ services:
     networks:
       - fepa-network
     restart: unless-stopped
-    volumes:
-      - ../auth-service:/app
-      - /app/node_modules
+    # volumes:  # Comment out for production or if node_modules not installed locally
+    #   - ../auth-service:/app
+    #   - /app/node_modules
 
 networks:
   fepa-network:
