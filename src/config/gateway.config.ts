@@ -2,12 +2,10 @@ export const gatewayConfig = () => ({
   port: parseInt(process.env.PORT ?? '3000', 10),
   nodeEnv: process.env.NODE_ENV || 'development',
 
-  // RabbitMQ
   rabbitmq: {
-    url: process.env.RABBITMQ_URL || 'amqp://fepa:fepa123@localhost:5672',
+    url: process.env.RABBITMQ_URL || 'amqp://fepa:fepa123@rabbitmq:5672',
   },
 
-  // Services
   services: {
     auth: {
       host: process.env.AUTH_SERVICE_HOST || 'localhost',
@@ -43,19 +41,16 @@ export const gatewayConfig = () => ({
     },
   },
 
-  // JWT
   jwt: {
-    secret: process.env.JWT_SECRET || 'your-secret-key',
+    secret: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
     expiresIn: process.env.JWT_EXPIRATION || '24h',
   },
 
-  // Rate Limiting
   rateLimit: {
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS ?? '60000', 10),
     maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS ?? '100', 10),
   },
 
-  // Logging
   logging: {
     level: process.env.LOG_LEVEL || 'debug',
   },

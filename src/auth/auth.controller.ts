@@ -19,6 +19,7 @@ import type { Request } from 'express';
 import { AuthService } from './auth.service.js';
 import { RegisterDto } from './dto/register.dto.js';
 import { VerifyOtpDto } from './dto/verify-otp.dto.js';
+import { ResendOtpDto } from './dto/resend-otp.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 import { RefreshTokenDto } from './dto/refresh-token.dto.js';
 import { ForgotPasswordDto } from './dto/forgot-password.dto.js';
@@ -27,7 +28,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto.js';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('register')
   @ApiOperation({ summary: 'Register new account' })
@@ -58,6 +59,21 @@ export class AuthController {
   })
   async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto): Promise<any> {
     return this.authService.verifyOtp(verifyOtpDto);
+  }
+
+  @Post('resend-otp')
+  @ApiOperation({ summary: 'Resend OTP to email' })
+  @ApiResponse({
+    status: 200,
+    description: 'OTP resent to email',
+    schema: {
+      properties: {
+        message: { type: 'string' },
+      },
+    },
+  })
+  async resendOtp(@Body() resendOtpDto: ResendOtpDto): Promise<any> {
+    return this.authService.resendOtp(resendOtpDto);
   }
 
   @Post('login')

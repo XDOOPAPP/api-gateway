@@ -1,45 +1,93 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
+import { AxiosResponse } from 'axios';
+
 import { RegisterDto } from './dto/register.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 import { VerifyOtpDto } from './dto/verify-otp.dto.js';
+import { ResendOtpDto } from './dto/resend-otp.dto.js';
 import { RefreshTokenDto } from './dto/refresh-token.dto.js';
 import { ForgotPasswordDto } from './dto/forgot-password.dto.js';
 import { ResetPasswordDto } from './dto/reset-password.dto.js';
-import { AxiosResponse } from 'axios';
 
 @Injectable()
 export class AuthService {
-  private authServiceUrl = 'http://localhost:3001/api/v1/auth';
+  private readonly authServiceUrl: string;
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
+  ) {
+    const authConfig = this.configService.get('services.auth');
+
+    if (!authConfig || !authConfig.host || !authConfig.port) {
+      throw new Error(
+        'Auth service configuration is missing. Please set AUTH_SERVICE_HOST and AUTH_SERVICE_PORT environment variables.',
+      );
+    }
+
+    this.authServiceUrl = `http://${authConfig.host}:${authConfig.port}/api/v1/auth`;
+  }
 
   private handleError(error: any, defaultMessage: string) {
+    // Log error for debugging
+    console.error('[AuthService Error]', {
+      message: error.message,
+      code: error.code,
+      response: error.response?.data,
+      status: error.response?.status,
+    });
+
+    // Handle connection errors (service not available)
+    if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+      throw new HttpException(
+        `Cannot connect to auth-service. Please ensure auth-service is running.`,
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+
+    // Handle timeout errors
+    if (error.code === 'ETIMEDOUT') {
+      throw new HttpException(
+        'Auth service request timeout',
+        HttpStatus.REQUEST_TIMEOUT,
+      );
+    }
+
+    // Handle HTTP errors from auth-service
+    if (error.response) {
+      const status = error.response.status || HttpStatus.INTERNAL_SERVER_ERROR;
+      const message = error.response.data?.message || defaultMessage;
+      throw new HttpException(message, status);
+    }
+
+    // Handle other errors
     throw new HttpException(
-      error.response?.data?.message || defaultMessage,
-      error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      error.message || defaultMessage,
+      HttpStatus.INTERNAL_SERVER_ERROR,
     );
   }
 
   async register(registerDto: RegisterDto) {
     try {
+      console.log(`[AuthService] Calling ${this.authServiceUrl}/register with:`, registerDto);
       const response: AxiosResponse<any> = await firstValueFrom(
         this.httpService.post(`${this.authServiceUrl}/register`, registerDto),
       );
+      console.log(`[AuthService] Response:`, response.data);
       return response.data;
     } catch (error) {
+      console.error(`[AuthService] Register error:`, error);
       this.handleError(error, 'Registration failed');
     }
   }
 
   async verifyOtp(verifyOtpDto: VerifyOtpDto) {
     try {
-      const response: AxiosResponse<any> = await firstValueFrom(
-        this.httpService.post(
-          `${this.authServiceUrl}/verify-otp`,
-          verifyOtpDto,
-        ),
+      const response = await firstValueFrom(
+        this.httpService.post(`${this.authServiceUrl}/verify-otp`, verifyOtpDto),
       );
       return response.data;
     } catch (error) {
@@ -47,9 +95,20 @@ export class AuthService {
     }
   }
 
+  async resendOtp(resendOtpDto: ResendOtpDto) {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.post(`${this.authServiceUrl}/resend-otp`, resendOtpDto),
+      );
+      return response.data;
+    } catch (error) {
+      this.handleError(error, 'Failed to resend OTP');
+    }
+  }
+
   async login(loginDto: LoginDto) {
     try {
-      const response: AxiosResponse<any> = await firstValueFrom(
+      const response = await firstValueFrom(
         this.httpService.post(`${this.authServiceUrl}/login`, loginDto),
       );
       return response.data;
@@ -60,11 +119,8 @@ export class AuthService {
 
   async refresh(refreshTokenDto: RefreshTokenDto) {
     try {
-      const response: AxiosResponse<any> = await firstValueFrom(
-        this.httpService.post(
-          `${this.authServiceUrl}/refresh`,
-          refreshTokenDto,
-        ),
+      const response = await firstValueFrom(
+        this.httpService.post(`${this.authServiceUrl}/refresh`, refreshTokenDto),
       );
       return response.data;
     } catch (error) {
@@ -74,7 +130,7 @@ export class AuthService {
 
   async getProfile(token: string) {
     try {
-      const response: AxiosResponse<any> = await firstValueFrom(
+      const response = await firstValueFrom(
         this.httpService.get(`${this.authServiceUrl}/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -89,7 +145,7 @@ export class AuthService {
 
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
     try {
-      const response: AxiosResponse<any> = await firstValueFrom(
+      const response = await firstValueFrom(
         this.httpService.post(
           `${this.authServiceUrl}/forgot-password`,
           forgotPasswordDto,
@@ -103,7 +159,7 @@ export class AuthService {
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
     try {
-      const response: AxiosResponse<any> = await firstValueFrom(
+      const response = await firstValueFrom(
         this.httpService.post(
           `${this.authServiceUrl}/reset-password`,
           resetPasswordDto,
@@ -117,7 +173,7 @@ export class AuthService {
 
   async verifyToken(token: string) {
     try {
-      const response: AxiosResponse<any> = await firstValueFrom(
+      const response = await firstValueFrom(
         this.httpService.post(
           `${this.authServiceUrl}/verify`,
           {},
@@ -130,8 +186,6 @@ export class AuthService {
       );
       return response.data;
     } catch (error) {
-      // Don't throw for verification check, just return false or let the caller decide?
-      // usage in controller was: throw HttpException
       this.handleError(error, 'Token verification failed');
     }
   }

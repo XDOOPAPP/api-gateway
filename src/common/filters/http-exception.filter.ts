@@ -26,9 +26,25 @@ export class AllExceptionsFilter implements ExceptionFilter {
       const exceptionResponse = exception.getResponse();
       if (typeof exceptionResponse === 'object') {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const { message: msg } = exceptionResponse as any;
+        const responseObj = exceptionResponse as any;
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        message = msg || exception.message;
+        message = responseObj.message || exception.message;
+        // If response has details, include them
+        if (responseObj.details) {
+          response.status(status).json({
+            success: false,
+            error: {
+              code: exception.name,
+              message,
+              details: responseObj.details,
+            },
+            meta: {
+              timestamp: new Date().toISOString(),
+              path: request['url'],
+            },
+          });
+          return;
+        }
       } else {
         message = exception.message;
       }

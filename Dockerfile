@@ -20,7 +20,7 @@ RUN npm install -g @nestjs/cli
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
-COPY .env.example .env
+# Environment variables should be set via docker-compose or runtime, not copied from .env.example
 
 EXPOSE 3000
 
