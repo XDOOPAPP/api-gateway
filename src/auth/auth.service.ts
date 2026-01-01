@@ -11,7 +11,8 @@ import { AxiosResponse } from 'axios';
 
 @Injectable()
 export class AuthService {
-  private authServiceUrl = 'http://localhost:3001/api/v1/auth';
+  private authServiceUrl =
+    process.env.AUTH_SERVICE_URL || 'http://fepa-auth-service:3001/api/v1/auth';
 
   constructor(private readonly httpService: HttpService) {}
 
