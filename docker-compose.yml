@@ -86,11 +86,14 @@ services:
     networks:
       - fepa-network
     restart: unless-stopped
-    volumes:
-      - .:/app
-      - /app/node_modules
+    # Note: Volume mounts commented out to avoid anonymous volume caching issues
+    # The anonymous volume for node_modules persists old dependencies even after rebuilding
+    # Uncomment these for hot-reload development (but run `docker-compose down -v` when changing deps)
+    # volumes:
+    #   - .:/app
+    #   - /app/node_modules
 
-  # Auth Service (Express.js + MongoDB)
+    # Auth Service (Express.js + MongoDB)
   auth-service:
     build:
       context: ../auth-service
