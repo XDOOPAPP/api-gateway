@@ -16,14 +16,14 @@ export class AuthService {
 
   constructor(private readonly httpService: HttpService) {}
 
-  private handleError(error: any, defaultMessage: string) {
+  private handleError(error: any, defaultMessage: string): Promise<any> {
     throw new HttpException(
       error.response?.data?.message || defaultMessage,
       error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
     );
   }
 
-  async register(registerDto: RegisterDto) {
+  async register(registerDto: RegisterDto): Promise<any> {
     try {
       const response: AxiosResponse<any> = await firstValueFrom(
         this.httpService.post(`${this.authServiceUrl}/register`, registerDto),
@@ -34,7 +34,7 @@ export class AuthService {
     }
   }
 
-  async verifyOtp(verifyOtpDto: VerifyOtpDto) {
+  async verifyOtp(verifyOtpDto: VerifyOtpDto): Promise<any> {
     try {
       const response: AxiosResponse<any> = await firstValueFrom(
         this.httpService.post(
@@ -48,7 +48,7 @@ export class AuthService {
     }
   }
 
-  async login(loginDto: LoginDto) {
+  async login(loginDto: LoginDto): Promise<any> {
     try {
       const response: AxiosResponse<any> = await firstValueFrom(
         this.httpService.post(`${this.authServiceUrl}/login`, loginDto),
@@ -59,7 +59,7 @@ export class AuthService {
     }
   }
 
-  async refresh(refreshTokenDto: RefreshTokenDto) {
+  async refresh(refreshTokenDto: RefreshTokenDto): Promise<any> {
     try {
       const response: AxiosResponse<any> = await firstValueFrom(
         this.httpService.post(
@@ -73,7 +73,7 @@ export class AuthService {
     }
   }
 
-  async getProfile(token: string) {
+  async getProfile(token: string): Promise<any> {
     try {
       const response: AxiosResponse<any> = await firstValueFrom(
         this.httpService.get(`${this.authServiceUrl}/me`, {
@@ -88,7 +88,7 @@ export class AuthService {
     }
   }
 
-  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<any> {
     try {
       const response: AxiosResponse<any> = await firstValueFrom(
         this.httpService.post(
@@ -102,7 +102,7 @@ export class AuthService {
     }
   }
 
-  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<any> {
     try {
       const response: AxiosResponse<any> = await firstValueFrom(
         this.httpService.post(
@@ -116,7 +116,7 @@ export class AuthService {
     }
   }
 
-  async verifyToken(token: string) {
+  async verifyToken(token: string): Promise<any> {
     try {
       const response: AxiosResponse<any> = await firstValueFrom(
         this.httpService.post(
