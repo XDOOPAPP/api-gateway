@@ -81,6 +81,8 @@ services:
       - JWT_EXPIRATION=${JWT_EXPIRATION:-24h}
       - AUTH_SERVICE_HOST=fepa-auth-service
       - AUTH_SERVICE_PORT=3001
+      - SUBSCRIPTION_SERVICE_HOST=fepa-subscription-service
+      - SUBSCRIPTION_SERVICE_PORT=3005
     depends_on:
       auth-service:
         condition: service_started
@@ -113,12 +115,36 @@ services:
     depends_on:
       mongodb:
         condition: service_healthy
+    rabbitmq:
+      condition: service_healthy
+
     networks:
       - fepa-network
     restart: unless-stopped
     # volumes:  # Comment out for production or if node_modules not installed locally
     #   - ../auth-service:/app
     #   - /app/node_modules
+
+subscription-service:
+  build:
+    context: ../subscription-service
+    dockerfile: Dockerfile
+  container_name: fepa-subscription-service
+  ports:
+    - "3005:3005"
+  environment:
+    - NODE_ENV=development
+    - PORT=3005
+    - MONGO_URL=mongodb://fepa:fepa123@fepa-mongodb:27017/fepa_subscription?authSource=admin
+    - RABBITMQ_URL=amqp://fepa:fepa123@fepa-rabbitmq:5672
+  depends_on:
+    mongodb:
+      condition: service_healthy
+    rabbitmq:
+      condition: service_healthy
+  networks:
+    - fepa-network
+  restart: unless-stopped
 
 networks:
   fepa-network:
