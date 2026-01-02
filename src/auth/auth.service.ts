@@ -14,7 +14,8 @@ import { ResetPasswordDto } from './dto/reset-password.dto.js';
 
 @Injectable()
 export class AuthService {
-  private readonly authServiceUrl: string;
+  private authServiceUrl =
+    process.env.AUTH_SERVICE_URL || 'http://fepa-auth-service:3001/api/v1/auth';
 
   constructor(
     private readonly httpService: HttpService,
@@ -31,46 +32,14 @@ export class AuthService {
     this.authServiceUrl = `http://${authConfig.host}:${authConfig.port}/api/v1/auth`;
   }
 
-  private handleError(error: any, defaultMessage: string) {
-    // Log error for debugging
-    console.error('[AuthService Error]', {
-      message: error.message,
-      code: error.code,
-      response: error.response?.data,
-      status: error.response?.status,
-    });
-
-    // Handle connection errors (service not available)
-    if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
-      throw new HttpException(
-        `Cannot connect to auth-service. Please ensure auth-service is running.`,
-        HttpStatus.SERVICE_UNAVAILABLE,
-      );
-    }
-
-    // Handle timeout errors
-    if (error.code === 'ETIMEDOUT') {
-      throw new HttpException(
-        'Auth service request timeout',
-        HttpStatus.REQUEST_TIMEOUT,
-      );
-    }
-
-    // Handle HTTP errors from auth-service
-    if (error.response) {
-      const status = error.response.status || HttpStatus.INTERNAL_SERVER_ERROR;
-      const message = error.response.data?.message || defaultMessage;
-      throw new HttpException(message, status);
-    }
-
-    // Handle other errors
+  private handleError(error: any, defaultMessage: string): Promise<any> {
     throw new HttpException(
       error.message || defaultMessage,
       HttpStatus.INTERNAL_SERVER_ERROR,
     );
   }
 
-  async register(registerDto: RegisterDto) {
+  async register(registerDto: RegisterDto): Promise<any> {
     try {
       console.log(`[AuthService] Calling ${this.authServiceUrl}/register with:`, registerDto);
       const response: AxiosResponse<any> = await firstValueFrom(
@@ -84,7 +53,7 @@ export class AuthService {
     }
   }
 
-  async verifyOtp(verifyOtpDto: VerifyOtpDto) {
+  async verifyOtp(verifyOtpDto: VerifyOtpDto): Promise<any> {
     try {
       const response = await firstValueFrom(
         this.httpService.post(`${this.authServiceUrl}/verify-otp`, verifyOtpDto),
@@ -95,18 +64,7 @@ export class AuthService {
     }
   }
 
-  async resendOtp(resendOtpDto: ResendOtpDto) {
-    try {
-      const response = await firstValueFrom(
-        this.httpService.post(`${this.authServiceUrl}/resend-otp`, resendOtpDto),
-      );
-      return response.data;
-    } catch (error) {
-      this.handleError(error, 'Failed to resend OTP');
-    }
-  }
-
-  async login(loginDto: LoginDto) {
+  async login(loginDto: LoginDto): Promise<any> {
     try {
       const response = await firstValueFrom(
         this.httpService.post(`${this.authServiceUrl}/login`, loginDto),
@@ -117,7 +75,7 @@ export class AuthService {
     }
   }
 
-  async refresh(refreshTokenDto: RefreshTokenDto) {
+  async refresh(refreshTokenDto: RefreshTokenDto): Promise<any> {
     try {
       const response = await firstValueFrom(
         this.httpService.post(`${this.authServiceUrl}/refresh`, refreshTokenDto),
@@ -128,7 +86,7 @@ export class AuthService {
     }
   }
 
-  async getProfile(token: string) {
+  async getProfile(token: string): Promise<any> {
     try {
       const response = await firstValueFrom(
         this.httpService.get(`${this.authServiceUrl}/me`, {
@@ -143,7 +101,7 @@ export class AuthService {
     }
   }
 
-  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<any> {
     try {
       const response = await firstValueFrom(
         this.httpService.post(
@@ -157,7 +115,7 @@ export class AuthService {
     }
   }
 
-  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<any> {
     try {
       const response = await firstValueFrom(
         this.httpService.post(
@@ -171,7 +129,7 @@ export class AuthService {
     }
   }
 
-  async verifyToken(token: string) {
+  async verifyToken(token: string): Promise<any> {
     try {
       const response = await firstValueFrom(
         this.httpService.post(
