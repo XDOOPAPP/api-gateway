@@ -64,6 +64,17 @@ export class AuthService {
     }
   }
 
+  async resendOtp(resendOtpDto: ResendOtpDto): Promise<any> {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.post(`${this.authServiceUrl}/resend-otp`, resendOtpDto),
+      );
+      return response.data;
+    } catch (error) {
+      this.handleError(error, 'Failed to resend OTP');
+    }
+  }
+
   async login(loginDto: LoginDto): Promise<any> {
     try {
       const response = await firstValueFrom(

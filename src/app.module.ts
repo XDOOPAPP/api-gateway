@@ -11,6 +11,7 @@ import { CategoriesModule } from './categories/categories.module.js';
 import { BlogsModule } from './blogs/blogs.module';
 import { BudgetsModule } from './budgets/budgets.module';
 import { OcrsModule } from './ocrs/ocrs.module';
+import { SubscriptionModule } from './subscriptions/subscription.module.js';
 
 @Module({
   imports: [
@@ -140,6 +141,7 @@ import { OcrsModule } from './ocrs/ocrs.module';
     BlogsModule,
     BudgetsModule,
     OcrsModule,
+    SubscriptionModule,
   ],
   controllers: [AppController],
   providers: [JwtStrategy],
