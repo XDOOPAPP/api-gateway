@@ -33,6 +33,13 @@ export class AuthService {
   }
 
   private handleError(error: any, defaultMessage: string): Promise<any> {
+    if (error.response) {
+      throw new HttpException(
+        error.response.data?.message || error.message || defaultMessage,
+        error.response.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
     throw new HttpException(
       error.message || defaultMessage,
       HttpStatus.INTERNAL_SERVER_ERROR,

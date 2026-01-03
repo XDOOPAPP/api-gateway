@@ -14,10 +14,12 @@ export interface JwtPayload {
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private configService: ConfigService) {
+    const secret = configService.get<string>('jwt.secret') || 'dev-secret-key';
+    console.log('[API Gateway] JwtStrategy initialized. Secret start:', secret.substring(0, 5));
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('jwt.secret') || 'dev-secret-key',
+      secretOrKey: secret,
     });
   }
 
@@ -26,6 +28,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     email?: string;
     role: string;
   } {
+    console.log('[API Gateway] Validate payload:', JSON.stringify(payload));
     if (!payload.userId) {
       throw new UnauthorizedException('Invalid token payload');
     }
