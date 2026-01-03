@@ -127,29 +127,6 @@ services:
     #   - ../auth-service:/app
     #   - /app/node_modules
 
-  subscription-service:
-    build:
-      context: ../subscription-service
-      dockerfile: Dockerfile
-    container_name: fepa-subscription-service
-    ports:
-      - "3005:3005"
-    environment:
-      - NODE_ENV=development
-      - PORT=3005
-      - MONGO_URL=mongodb://fepa:fepa123@fepa-mongodb:27017/fepa_subscription?authSource=admin
-      - RABBITMQ_URL=amqp://fepa:fepa123@fepa-rabbitmq:5672
-      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
-      - JWT_EXPIRATION=${JWT_EXPIRATION:-24h}
-    depends_on:
-      mongodb:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-    networks:
-      - fepa-network
-    restart: unless-stopped
-
 networks:
   fepa-network:
     driver: bridge # API Gateway creates the network
