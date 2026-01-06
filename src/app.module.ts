@@ -12,6 +12,7 @@ import { BlogsModule } from './blogs/blogs.module';
 import { BudgetsModule } from './budgets/budgets.module';
 import { OcrsModule } from './ocrs/ocrs.module';
 import { SubscriptionModule } from './subscriptions/subscription.module.js';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -142,6 +143,7 @@ import { SubscriptionModule } from './subscriptions/subscription.module.js';
     BudgetsModule,
     OcrsModule,
     SubscriptionModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [JwtStrategy],
