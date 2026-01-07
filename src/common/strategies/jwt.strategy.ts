@@ -14,8 +14,14 @@ export interface JwtPayload {
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private configService: ConfigService) {
-    const secret = configService.get<string>('jwt.secret') || 'dev-secret-key';
-    console.log('[API Gateway] JwtStrategy initialized. Secret start:', secret.substring(0, 5));
+    const secret = configService.get<string>('jwt.secret');
+    if (!secret) {
+      throw new Error('JWT_SECRET is not configured in API Gateway');
+    }
+    console.log(
+      '[API Gateway] JwtStrategy initialized. Secret start:',
+      secret.substring(0, 5),
+    );
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,

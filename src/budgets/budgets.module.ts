@@ -12,7 +12,10 @@ import { BudgetsController } from './budgets.controller';
         useFactory: (configService: ConfigService) => ({
           transport: Transport.RMQ,
           options: {
-            urls: [configService.get<string>('rabbitmq.url') || 'amqp://localhost:5672'],
+            urls: [
+              configService.get<string>('rabbitmq.url') ||
+                'amqp://localhost:5672',
+            ],
             queue: 'budget_queue',
             queueOptions: {
               durable: true,
@@ -25,4 +28,4 @@ import { BudgetsController } from './budgets.controller';
   ],
   controllers: [BudgetsController],
 })
-export class BudgetsModule { }
+export class BudgetsModule {}

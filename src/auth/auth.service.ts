@@ -48,7 +48,10 @@ export class AuthService {
 
   async register(registerDto: RegisterDto): Promise<any> {
     try {
-      console.log(`[AuthService] Calling ${this.authServiceUrl}/register with:`, registerDto);
+      console.log(
+        `[AuthService] Calling ${this.authServiceUrl}/register with:`,
+        registerDto,
+      );
       const response: AxiosResponse<any> = await firstValueFrom(
         this.httpService.post(`${this.authServiceUrl}/register`, registerDto),
       );
@@ -63,7 +66,10 @@ export class AuthService {
   async verifyOtp(verifyOtpDto: VerifyOtpDto): Promise<any> {
     try {
       const response = await firstValueFrom(
-        this.httpService.post(`${this.authServiceUrl}/verify-otp`, verifyOtpDto),
+        this.httpService.post(
+          `${this.authServiceUrl}/verify-otp`,
+          verifyOtpDto,
+        ),
       );
       return response.data;
     } catch (error) {
@@ -74,7 +80,10 @@ export class AuthService {
   async resendOtp(resendOtpDto: ResendOtpDto): Promise<any> {
     try {
       const response = await firstValueFrom(
-        this.httpService.post(`${this.authServiceUrl}/resend-otp`, resendOtpDto),
+        this.httpService.post(
+          `${this.authServiceUrl}/resend-otp`,
+          resendOtpDto,
+        ),
       );
       return response.data;
     } catch (error) {
@@ -96,7 +105,10 @@ export class AuthService {
   async refresh(refreshTokenDto: RefreshTokenDto): Promise<any> {
     try {
       const response = await firstValueFrom(
-        this.httpService.post(`${this.authServiceUrl}/refresh`, refreshTokenDto),
+        this.httpService.post(
+          `${this.authServiceUrl}/refresh`,
+          refreshTokenDto,
+        ),
       );
       return response.data;
     } catch (error) {

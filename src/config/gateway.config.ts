@@ -42,7 +42,7 @@ export const gatewayConfig = () => ({
   },
 
   jwt: {
-    secret: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
+    secret: process.env.JWT_SECRET, // No default - must be set in .env
     expiresIn: process.env.JWT_EXPIRATION || '24h',
   },
 

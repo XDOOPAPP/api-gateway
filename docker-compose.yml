@@ -1,70 +1,13 @@
 version: '3.8'
 
+# =============================================================================
+# FEPA API Gateway + Auth Service
+# =============================================================================
+# QUAN TRỌNG: Chạy infrastructure trước!
+# cd deployment && docker-compose -f docker-compose.infra.yml up -d
+# =============================================================================
+
 services:
-  # MongoDB for Auth Service
-  mongodb:
-    image: mongo:7-jammy
-    container_name: fepa-mongodb
-    ports:
-      - '27017:27017'
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=fepa
-      - MONGO_INITDB_ROOT_PASSWORD=fepa123
-    volumes:
-      - mongodb_data:/data/db
-    networks:
-      - fepa-network
-    healthcheck:
-      test: ['CMD', 'mongosh', '--eval', "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
-  # PostgreSQL for all microservices
-  postgres:
-    image: postgres:15-alpine
-    container_name: fepa-postgres
-    ports:
-      - '5432:5432'
-    environment:
-      - POSTGRES_USER=fepa
-      - POSTGRES_PASSWORD=fepa123
-      - POSTGRES_DB=fepa_db
-      - POSTGRES_MULTIPLE_DATABASES=fepa_expenses,fepa_budget,fepa_blog,fepa_ocr,fepa_ai
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init-multiple-dbs.sh:/docker-entrypoint-initdb.d/init-multiple-dbs.sh
-    networks:
-      - fepa-network
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U fepa']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
-  # RabbitMQ Message Broker
-  rabbitmq:
-    image: rabbitmq:3.12-management-alpine
-    container_name: fepa-rabbitmq
-    ports:
-      - '5672:5672'
-      - '15672:15672'
-    environment:
-      - RABBITMQ_DEFAULT_USER=fepa
-      - RABBITMQ_DEFAULT_PASS=fepa123
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    networks:
-      - fepa-network
-    healthcheck:
-      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
   # API Gateway
   api-gateway:
     build:
@@ -88,7 +31,7 @@ services:
         condition: service_started
     networks:
       - fepa-network
-    restart: unless-stopped
+    restart: on-failure
     # Note: Volume mounts commented out to avoid anonymous volume caching issues
     # The anonymous volume for node_modules persists old dependencies even after rebuilding
     # Uncomment these for hot-reload development (but run `docker-compose down -v` when changing deps)
@@ -114,24 +57,14 @@ services:
       - JWT_EXPIRATION=${JWT_EXPIRATION:-24h}
       - EMAIL_USER=vvq0522@gmail.com
       - EMAIL_PASS=pyzewbsumidnrqsw
-    depends_on:
-      mongodb:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-
     networks:
       - fepa-network
-    restart: unless-stopped
+    restart: on-failure
     # volumes:  # Comment out for production or if node_modules not installed locally
     #   - ../auth-service:/app
     #   - /app/node_modules
 
 networks:
   fepa-network:
-    driver: bridge # API Gateway creates the network
-
-volumes:
-  mongodb_data:
-  postgres_data:
-  rabbitmq_data:
+    name: fepa-network
+    external: true
