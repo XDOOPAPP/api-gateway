@@ -39,6 +39,10 @@ export const gatewayConfig = () => ({
       host: process.env.AI_SERVICE_HOST || 'localhost',
       port: parseInt(process.env.AI_SERVICE_PORT ?? '3008', 10),
     },
+    payment: {
+      host: process.env.PAYMENT_SERVICE_HOST || 'localhost',
+      port: parseInt(process.env.PAYMENT_SERVICE_PORT ?? '3101', 10),
+    },
   },
 
   jwt: {
