@@ -24,6 +24,8 @@ services:
       - JWT_EXPIRATION=${JWT_EXPIRATION:-24h}
       - AUTH_SERVICE_HOST=auth-service
       - AUTH_SERVICE_PORT=3001
+      - SUBSCRIPTION_SERVICE_HOST=subscription-service
+      - SUBSCRIPTION_SERVICE_PORT=3005
     depends_on:
       auth-service:
         condition: service_started
