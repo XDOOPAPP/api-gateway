@@ -26,6 +26,8 @@ services:
       - AUTH_SERVICE_PORT=3001
       - SUBSCRIPTION_SERVICE_HOST=subscription-service
       - SUBSCRIPTION_SERVICE_PORT=3005
+      - PAYMENT_SERVICE_HOST=payment-service
+      - PAYMENT_SERVICE_PORT=3101
     depends_on:
       auth-service:
         condition: service_started
