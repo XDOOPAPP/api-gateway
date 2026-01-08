@@ -84,12 +84,13 @@ export class SubscriptionService {
     }
   }
 
-  async getCurrent(token: string) {
+  async getCurrent(token: string, userId: string) {
     try {
       const response = await firstValueFrom(
         this.httpService.get(`${this.subscriptionServiceUrl}/current`, {
           headers: {
             Authorization: `Bearer ${token}`,
+            'x-user-id': userId,
           },
         }),
       );
@@ -99,7 +100,7 @@ export class SubscriptionService {
     }
   }
 
-  async subscribe(token: string, planId: string) {
+  async subscribe(token: string, userId: string, planId: string) {
     try {
       const response = await firstValueFrom(
         this.httpService.post(
@@ -108,6 +109,7 @@ export class SubscriptionService {
           {
             headers: {
               Authorization: `Bearer ${token}`,
+              'x-user-id': userId,
             },
           },
         ),
@@ -118,7 +120,7 @@ export class SubscriptionService {
     }
   }
 
-  async cancel(token: string) {
+  async cancel(token: string, userId: string) {
     try {
       const response = await firstValueFrom(
         this.httpService.post(
@@ -127,6 +129,7 @@ export class SubscriptionService {
           {
             headers: {
               Authorization: `Bearer ${token}`,
+              'x-user-id': userId,
             },
           },
         ),
@@ -137,12 +140,13 @@ export class SubscriptionService {
     }
   }
 
-  async getHistory(token: string) {
+  async getHistory(token: string, userId: string) {
     try {
       const response = await firstValueFrom(
         this.httpService.get(`${this.subscriptionServiceUrl}/history`, {
           headers: {
             Authorization: `Bearer ${token}`,
+            'x-user-id': userId,
           },
         }),
       );
@@ -152,13 +156,14 @@ export class SubscriptionService {
     }
   }
 
-  async checkFeature(token: string, feature: string) {
+  async checkFeature(token: string, userId: string, feature: string) {
     try {
       const response = await firstValueFrom(
         this.httpService.get(`${this.subscriptionServiceUrl}/check`, {
           params: { feature },
           headers: {
             Authorization: `Bearer ${token}`,
+            'x-user-id': userId,
           },
         }),
       );
@@ -168,7 +173,7 @@ export class SubscriptionService {
     }
   }
 
-  async toggleAutoRenew(token: string) {
+  async toggleAutoRenew(token: string, userId: string) {
     try {
       const response = await firstValueFrom(
         this.httpService.post(
@@ -177,6 +182,7 @@ export class SubscriptionService {
           {
             headers: {
               Authorization: `Bearer ${token}`,
+              'x-user-id': userId,
             },
           },
         ),
@@ -187,12 +193,13 @@ export class SubscriptionService {
     }
   }
 
-  async getUserFeatures(token: string) {
+  async getUserFeatures(token: string, userId: string) {
     try {
       const response = await firstValueFrom(
         this.httpService.get(`${this.subscriptionServiceUrl}/features`, {
           headers: {
             Authorization: `Bearer ${token}`,
+            'x-user-id': userId,
           },
         }),
       );
@@ -216,7 +223,7 @@ export class SubscriptionService {
     }
   }
 
-  async createPlan(token: string, planData: any) {
+  async createPlan(token: string, userId: string, planData: any) {
     try {
       const response = await firstValueFrom(
         this.httpService.post(
@@ -225,6 +232,7 @@ export class SubscriptionService {
           {
             headers: {
               Authorization: `Bearer ${token}`,
+              'x-user-id': userId,
             },
           },
         ),
@@ -235,7 +243,7 @@ export class SubscriptionService {
     }
   }
 
-  async updatePlan(token: string, id: string, planData: any) {
+  async updatePlan(token: string, userId: string, id: string, planData: any) {
     try {
       const response = await firstValueFrom(
         this.httpService.patch(
@@ -244,6 +252,7 @@ export class SubscriptionService {
           {
             headers: {
               Authorization: `Bearer ${token}`,
+              'x-user-id': userId,
             },
           },
         ),
@@ -254,12 +263,13 @@ export class SubscriptionService {
     }
   }
 
-  async disablePlan(token: string, id: string) {
+  async disablePlan(token: string, userId: string, id: string) {
     try {
       const response = await firstValueFrom(
         this.httpService.delete(`${this.subscriptionServiceUrl}/plans/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
+            'x-user-id': userId,
           },
         }),
       );
@@ -269,12 +279,13 @@ export class SubscriptionService {
     }
   }
 
-  async getStats(token: string) {
+  async getStats(token: string, userId: string) {
     try {
       const response = await firstValueFrom(
         this.httpService.get(`${this.subscriptionServiceUrl}/admin/stats`, {
           headers: {
             Authorization: `Bearer ${token}`,
+            'x-user-id': userId,
           },
         }),
       );

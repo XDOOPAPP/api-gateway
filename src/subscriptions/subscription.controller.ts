@@ -29,7 +29,7 @@ import { UpdatePlanDto } from './dto/update-plan.dto.js';
 @ApiTags('Subscriptions')
 @Controller('subscriptions')
 export class SubscriptionController {
-  constructor(private readonly subscriptionService: SubscriptionService) {}
+  constructor(private readonly subscriptionService: SubscriptionService) { }
 
   // Public endpoints
   @Get('plans')
@@ -66,7 +66,8 @@ export class SubscriptionController {
     if (!token) {
       throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
     }
-    return this.subscriptionService.getCurrent(token);
+    const userId = (request as any).user?.userId;
+    return this.subscriptionService.getCurrent(token, userId);
   }
 
   @Post()
@@ -85,7 +86,8 @@ export class SubscriptionController {
     if (!token) {
       throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
     }
-    return this.subscriptionService.subscribe(token, subscribeDto.planId);
+    const userId = (request as any).user?.userId;
+    return this.subscriptionService.subscribe(token, userId, subscribeDto.planId);
   }
 
   @Post('cancel')
@@ -101,7 +103,8 @@ export class SubscriptionController {
     if (!token) {
       throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
     }
-    return this.subscriptionService.cancel(token);
+    const userId = (request as any).user?.userId;
+    return this.subscriptionService.cancel(token, userId);
   }
 
   @Get('history')
@@ -117,7 +120,8 @@ export class SubscriptionController {
     if (!token) {
       throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
     }
-    return this.subscriptionService.getHistory(token);
+    const userId = (request as any).user?.userId;
+    return this.subscriptionService.getHistory(token, userId);
   }
 
   @Get('check')
@@ -144,7 +148,8 @@ export class SubscriptionController {
     if (!feature) {
       throw new HttpException('Feature parameter is required', HttpStatus.BAD_REQUEST);
     }
-    return this.subscriptionService.checkFeature(token, feature);
+    const userId = (request as any).user?.userId;
+    return this.subscriptionService.checkFeature(token, userId, feature);
   }
 
   @Post('auto-renew')
@@ -160,7 +165,8 @@ export class SubscriptionController {
     if (!token) {
       throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
     }
-    return this.subscriptionService.toggleAutoRenew(token);
+    const userId = (request as any).user?.userId;
+    return this.subscriptionService.toggleAutoRenew(token, userId);
   }
 
   @Get('features')
@@ -176,7 +182,8 @@ export class SubscriptionController {
     if (!token) {
       throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
     }
-    return this.subscriptionService.getUserFeatures(token);
+    const userId = (request as any).user?.userId;
+    return this.subscriptionService.getUserFeatures(token, userId);
   }
 
   // Payment endpoint (public, no auth required)
@@ -207,7 +214,8 @@ export class SubscriptionController {
     if (!token) {
       throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
     }
-    return this.subscriptionService.createPlan(token, createPlanDto);
+    const userId = (request as any).user?.userId;
+    return this.subscriptionService.createPlan(token, userId, createPlanDto);
   }
 
   @Patch('plans/:id')
@@ -227,7 +235,8 @@ export class SubscriptionController {
     if (!token) {
       throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
     }
-    return this.subscriptionService.updatePlan(token, id, updatePlanDto);
+    const userId = (request as any).user?.userId;
+    return this.subscriptionService.updatePlan(token, userId, id, updatePlanDto);
   }
 
   @Delete('plans/:id')
@@ -246,7 +255,8 @@ export class SubscriptionController {
     if (!token) {
       throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
     }
-    return this.subscriptionService.disablePlan(token, id);
+    const userId = (request as any).user?.userId;
+    return this.subscriptionService.disablePlan(token, userId, id);
   }
 
   @Get('admin/stats')
@@ -262,7 +272,8 @@ export class SubscriptionController {
     if (!token) {
       throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
     }
-    return this.subscriptionService.getStats(token);
+    const userId = (request as any).user?.userId;
+    return this.subscriptionService.getStats(token, userId);
   }
 }
 
