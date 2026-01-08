@@ -20,12 +20,10 @@ services:
       - NODE_ENV=development
       - PORT=3000
       - RABBITMQ_URL=amqp://fepa:fepa123@fepa-rabbitmq:5672
-      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
+      - JWT_SECRET=${JWT_SECRET:-fepa-key}
       - JWT_EXPIRATION=${JWT_EXPIRATION:-24h}
       - AUTH_SERVICE_HOST=auth-service
       - AUTH_SERVICE_PORT=3001
-      - SUBSCRIPTION_SERVICE_HOST=subscription-service
-      - SUBSCRIPTION_SERVICE_PORT=3005
     depends_on:
       auth-service:
         condition: service_started
@@ -52,7 +50,7 @@ services:
       - PORT=3001
       - MONGO_URL=mongodb://fepa:fepa123@fepa-mongodb:27017/fepa_auth?authSource=admin
       - RABBITMQ_URL=amqp://fepa:fepa123@fepa-rabbitmq:5672
-      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
+      - JWT_SECRET=${JWT_SECRET:-fepa-key}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your-refresh-secret-change-in-production}
       - JWT_EXPIRATION=${JWT_EXPIRATION:-24h}
       - EMAIL_USER=vvq0522@gmail.com
