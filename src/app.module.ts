@@ -13,6 +13,7 @@ import { BudgetsModule } from './budgets/budgets.module';
 import { OcrsModule } from './ocrs/ocrs.module';
 import { SubscriptionModule } from './subscriptions/subscription.module.js';
 import { AiModule } from './ai/ai.module';
+import { PaymentModule } from './payments/payment.module.js';
 
 @Module({
   imports: [
@@ -134,6 +135,20 @@ import { AiModule } from './ai/ai.module';
         }),
         inject: [ConfigService],
       },
+      {
+        name: 'PAYMENT_SERVICE',
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('rabbitmq.url') || 'amqp://localhost:5672'],
+            queue: 'payment_queue',
+            queueOptions: {
+              durable: true,
+            },
+          },
+        }),
+        inject: [ConfigService],
+      },
     ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     AuthModule,
@@ -144,6 +159,7 @@ import { AiModule } from './ai/ai.module';
     OcrsModule,
     SubscriptionModule,
     AiModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [JwtStrategy],
