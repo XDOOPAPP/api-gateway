@@ -25,7 +25,10 @@ export class OcrsController {
   ) { }
 
   @Post('scan')
-  @ApiOperation({ summary: 'Create new OCR job' })
+  @ApiOperation({
+    summary: 'Scan invoice (QR code or OCR text)',
+    description: 'Scans invoice image with QR-first approach. Attempts QR code detection first (Vietnamese e-invoice format), falls back to OCR text recognition if QR not found. Returns job ID for tracking.'
+  })
   async scan(
     @Body() body: any,
     @CurrentUser('userId') userId: string,
@@ -36,7 +39,10 @@ export class OcrsController {
   }
 
   @Get('jobs')
-  @ApiOperation({ summary: 'Get OCR job history' })
+  @ApiOperation({
+    summary: 'Get OCR/QR job history',
+    description: 'Retrieves list of all scanning jobs (both QR and OCR) for the current user.'
+  })
   async getHistory(
     @Query() query: any,
     @CurrentUser('userId') userId: string,
@@ -47,7 +53,10 @@ export class OcrsController {
   }
 
   @Get('jobs/:jobId')
-  @ApiOperation({ summary: 'Get specific OCR job by ID' })
+  @ApiOperation({
+    summary: 'Get specific job details',
+    description: 'Retrieves detailed results of a scanning job, including QR data (if detected), OCR text, parsed expense data, and confidence scores.'
+  })
   async findOne(
     @Param('jobId') jobId: string,
     @CurrentUser('userId') userId: string,
