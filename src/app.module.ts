@@ -14,6 +14,7 @@ import { OcrsModule } from './ocrs/ocrs.module';
 import { SubscriptionModule } from './subscriptions/subscription.module.js';
 import { AiModule } from './ai/ai.module';
 import { PaymentModule } from './payments/payment.module.js';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -160,6 +161,7 @@ import { PaymentModule } from './payments/payment.module.js';
     SubscriptionModule,
     AiModule,
     PaymentModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [JwtStrategy],
