@@ -22,6 +22,7 @@ import type { Request } from 'express';
 import { NotificationsService } from './notifications.service';
 import { GetNotificationsDto } from './dto/get-notifications.dto';
 import { CreateNotificationDto } from './dto/create-notification.dto';
+import { Roles } from '../common/decorators/roles.decorator';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -44,6 +45,7 @@ export class NotificationsController {
 
     @Post()
     @ApiOperation({ summary: 'Create a notification' })
+    @Roles('ADMIN')
     @ApiResponse({
         status: 201,
         description: 'Notification created',

@@ -2,7 +2,6 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
-import { AxiosResponse } from 'axios';
 import axiosRetry from 'axios-retry';
 
 @Injectable()
@@ -194,26 +193,6 @@ export class SubscriptionService {
     }
   }
 
-  async toggleAutoRenew(token: string, userId: string) {
-    try {
-      const response = await firstValueFrom(
-        this.httpService.post(
-          `${this.subscriptionServiceUrl}/auto-renew`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'x-user-id': userId,
-            },
-          },
-        ),
-      );
-      return response.data;
-    } catch (error) {
-      this.handleError(error, 'Failed to toggle auto-renew');
-    }
-  }
-
   async getUserFeatures(token: string, userId: string) {
     try {
       const response = await firstValueFrom(
@@ -227,20 +206,6 @@ export class SubscriptionService {
       return response.data;
     } catch (error) {
       this.handleError(error, 'Failed to fetch user features');
-    }
-  }
-
-  async paymentSuccess(payload: any) {
-    try {
-      const response = await firstValueFrom(
-        this.httpService.post(
-          `${this.subscriptionServiceUrl}/payment/success`,
-          payload,
-        ),
-      );
-      return response.data;
-    } catch (error) {
-      this.handleError(error, 'Failed to activate subscription after payment');
     }
   }
 

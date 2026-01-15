@@ -65,6 +65,7 @@ export class AuthService {
 
   async verifyOtp(verifyOtpDto: VerifyOtpDto): Promise<any> {
     try {
+      console.log(`[AuthService] Verifying OTP:`, verifyOtpDto.email);
       const response = await firstValueFrom(
         this.httpService.post(
           `${this.authServiceUrl}/verify-otp`,
@@ -73,12 +74,14 @@ export class AuthService {
       );
       return response.data;
     } catch (error) {
+      console.error(`[AuthService] Verify OTP error:`, error.message);
       this.handleError(error, 'OTP verification failed');
     }
   }
 
   async resendOtp(resendOtpDto: ResendOtpDto): Promise<any> {
     try {
+      console.log(`[AuthService] Resending OTP to:`, resendOtpDto.email);
       const response = await firstValueFrom(
         this.httpService.post(
           `${this.authServiceUrl}/resend-otp`,
@@ -87,17 +90,23 @@ export class AuthService {
       );
       return response.data;
     } catch (error) {
+      console.error(`[AuthService] Resend OTP error:`, error.message);
       this.handleError(error, 'Failed to resend OTP');
     }
   }
 
   async login(loginDto: LoginDto): Promise<any> {
     try {
+      console.log(`[AuthService] Logging in user:`, loginDto.email);
       const response = await firstValueFrom(
         this.httpService.post(`${this.authServiceUrl}/login`, loginDto),
       );
       return response.data;
     } catch (error) {
+      console.error(`[AuthService] Login error at ${this.authServiceUrl}/login:`, error.message);
+      if (error.response) {
+        console.error(`[AuthService] Remote response:`, error.response.data);
+      }
       this.handleError(error, 'Login failed');
     }
   }
@@ -112,6 +121,7 @@ export class AuthService {
       );
       return response.data;
     } catch (error) {
+      console.error(`[AuthService] Refresh token error:`, error.message);
       this.handleError(error, 'Token refresh failed');
     }
   }
@@ -127,12 +137,14 @@ export class AuthService {
       );
       return response.data;
     } catch (error) {
+      console.error(`[AuthService] Get profile error:`, error.message);
       this.handleError(error, 'Failed to fetch profile');
     }
   }
 
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<any> {
     try {
+      console.log(`[AuthService] Forgot password request for:`, forgotPasswordDto.email);
       const response = await firstValueFrom(
         this.httpService.post(
           `${this.authServiceUrl}/forgot-password`,
@@ -141,12 +153,14 @@ export class AuthService {
       );
       return response.data;
     } catch (error) {
+      console.error(`[AuthService] Forgot password error:`, error.message);
       this.handleError(error, 'Failed to send reset OTP');
     }
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<any> {
     try {
+      console.log(`[AuthService] Resetting password for:`, resetPasswordDto.email);
       const response = await firstValueFrom(
         this.httpService.post(
           `${this.authServiceUrl}/reset-password`,
@@ -155,6 +169,7 @@ export class AuthService {
       );
       return response.data;
     } catch (error) {
+      console.error(`[AuthService] Reset password error:`, error.message);
       this.handleError(error, 'Failed to reset password');
     }
   }
@@ -174,6 +189,7 @@ export class AuthService {
       );
       return response.data;
     } catch (error) {
+      console.error(`[AuthService] Verify token error:`, error.message);
       this.handleError(error, 'Token verification failed');
     }
   }
