@@ -22,9 +22,9 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import type { Request } from 'express';
 import { SubscriptionService } from './subscription.service.js';
 import { SubscribeDto } from './dto/subscribe.dto.js';
-import { PaymentSuccessDto } from './dto/payment-success.dto.js';
 import { CreatePlanDto } from './dto/create-plan.dto.js';
 import { UpdatePlanDto } from './dto/update-plan.dto.js';
+import { Roles } from '../common/decorators/roles.decorator.js';
 
 @ApiTags('Subscriptions')
 @Controller('subscriptions')
@@ -152,23 +152,6 @@ export class SubscriptionController {
     return this.subscriptionService.checkFeature(token, userId, feature);
   }
 
-  @Post('auto-renew')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Toggle auto-renewal for current subscription' })
-  @ApiResponse({
-    status: 200,
-    description: 'Auto-renewal toggled',
-  })
-  async toggleAutoRenew(@Req() request: Request): Promise<any> {
-    const token = request.headers.authorization?.split(' ')[1];
-    if (!token) {
-      throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
-    }
-    const userId = (request as any).user?.userId;
-    return this.subscriptionService.toggleAutoRenew(token, userId);
-  }
-
   @Get('features')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
@@ -186,21 +169,11 @@ export class SubscriptionController {
     return this.subscriptionService.getUserFeatures(token, userId);
   }
 
-  // Payment endpoint (public, no auth required)
-  @Post('payment/success')
-  @ApiOperation({ summary: 'Activate subscription after successful payment' })
-  @ApiResponse({
-    status: 200,
-    description: 'Subscription activated',
-  })
-  async paymentSuccess(@Body() paymentSuccessDto: PaymentSuccessDto): Promise<any> {
-    return this.subscriptionService.paymentSuccess(paymentSuccessDto);
-  }
-
   // Admin endpoints (require auth)
   @Post('plans')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Create a new subscription plan (Admin)' })
   @ApiResponse({
     status: 201,
@@ -221,6 +194,7 @@ export class SubscriptionController {
   @Patch('plans/:id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Update a subscription plan (Admin)' })
   @ApiResponse({
     status: 200,
@@ -242,6 +216,7 @@ export class SubscriptionController {
   @Delete('plans/:id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Disable a subscription plan (Admin)' })
   @ApiResponse({
     status: 200,
@@ -262,6 +237,7 @@ export class SubscriptionController {
   @Get('admin/stats')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Get subscription statistics (Admin)' })
   @ApiResponse({
     status: 200,

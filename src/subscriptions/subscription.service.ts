@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
-import { AxiosResponse } from 'axios';
+import axiosRetry from 'axios-retry';
 
 @Injectable()
 export class SubscriptionService {
@@ -21,6 +21,26 @@ export class SubscriptionService {
     }
 
     this.subscriptionServiceUrl = `http://${subscriptionConfig.host}:${subscriptionConfig.port}/api/v1/subscriptions`;
+
+    // Configure retry logic
+    axiosRetry(this.httpService.axiosRef, {
+      retries: 5,
+      retryDelay: (retryCount) => {
+        return retryCount * 1000; // 1s, 2s, 3s, 4s, 5s
+      },
+      retryCondition: (error) => {
+        return (
+          axiosRetry.isNetworkOrIdempotentRequestError(error) ||
+          error.code === 'ECONNREFUSED' ||
+          error.code === 'ENOTFOUND'
+        );
+      },
+      onRetry: (retryCount, error, requestConfig) => {
+        console.log(
+          `[SubscriptionService] Retrying request... Attempt ${retryCount} for ${requestConfig.url}. Error: ${error.message}`,
+        );
+      },
+    });
   }
 
   private handleError(error: any, defaultMessage: string) {
@@ -173,26 +193,6 @@ export class SubscriptionService {
     }
   }
 
-  async toggleAutoRenew(token: string, userId: string) {
-    try {
-      const response = await firstValueFrom(
-        this.httpService.post(
-          `${this.subscriptionServiceUrl}/auto-renew`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'x-user-id': userId,
-            },
-          },
-        ),
-      );
-      return response.data;
-    } catch (error) {
-      this.handleError(error, 'Failed to toggle auto-renew');
-    }
-  }
-
   async getUserFeatures(token: string, userId: string) {
     try {
       const response = await firstValueFrom(
@@ -206,20 +206,6 @@ export class SubscriptionService {
       return response.data;
     } catch (error) {
       this.handleError(error, 'Failed to fetch user features');
-    }
-  }
-
-  async paymentSuccess(payload: any) {
-    try {
-      const response = await firstValueFrom(
-        this.httpService.post(
-          `${this.subscriptionServiceUrl}/payment/success`,
-          payload,
-        ),
-      );
-      return response.data;
-    } catch (error) {
-      this.handleError(error, 'Failed to activate subscription after payment');
     }
   }
 
