@@ -12,6 +12,8 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { firstValueFrom } from 'rxjs';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
+import { RolesGuard } from '../common/guards/roles.guard';
 
 @ApiTags('AI')
 @Controller('ai')
@@ -106,6 +108,17 @@ export class AiController {
   ): Promise<unknown> {
     return firstValueFrom(
       this.aiClient.send('ai.get_insights', { period, userId }),
+    );
+  }
+
+  // Admin endpoints
+  @Get('admin/stats')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Get AI usage statistics for admin' })
+  async getAdminStats(): Promise<unknown> {
+    return firstValueFrom(
+      this.aiClient.send('ai.admin_stats', {}),
     );
   }
 }
