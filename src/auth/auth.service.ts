@@ -12,6 +12,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto.js';
 import { ForgotPasswordDto } from './dto/forgot-password.dto.js';
 import { ResetPasswordDto } from './dto/reset-password.dto.js';
 import { FcmTokenDto } from './dto/fcm-token.dto.js';
+import { RegisterAdminDto } from './dto/register-admin.dto.js';
 
 @Injectable()
 export class AuthService {
@@ -61,6 +62,49 @@ export class AuthService {
     } catch (error) {
       console.error(`[AuthService] Register error:`, error);
       this.handleError(error, 'Registration failed');
+    }
+  }
+
+  async registerAdmin(
+    token: string,
+    registerAdminDto: RegisterAdminDto,
+  ): Promise<any> {
+    try {
+      console.log(
+        `[AuthService] Calling ${this.authServiceUrl}/register-admin with:`,
+        registerAdminDto,
+      );
+      const response = await firstValueFrom(
+        this.httpService.post(
+          `${this.authServiceUrl}/register-admin`,
+          registerAdminDto,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        ),
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`[AuthService] Register admin error:`, error.message);
+      this.handleError(error, 'Admin registration failed');
+    }
+  }
+
+  async getAllAdmin(token: string): Promise<any> {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(`${this.authServiceUrl}/all-admin`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }),
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`[AuthService] Get all admin error:`, error.message);
+      this.handleError(error, 'Failed to fetch admin list');
     }
   }
 

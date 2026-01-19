@@ -25,6 +25,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto.js';
 import { ForgotPasswordDto } from './dto/forgot-password.dto.js';
 import { ResetPasswordDto } from './dto/reset-password.dto.js';
 import { FcmTokenDto } from './dto/fcm-token.dto.js';
+import { RegisterAdminDto } from './dto/register-admin.dto.js';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -65,6 +66,41 @@ export class AuthController {
   })
   async register(@Body() registerDto: RegisterDto): Promise<any> {
     return this.authService.register(registerDto);
+  }
+
+  @Post('register-admin')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Register new admin account' })
+  @ApiResponse({
+    status: 200,
+    description: 'Admin created successfully',
+    schema: {
+      properties: {
+        message: { type: 'string' },
+      },
+    },
+  })
+  async registerAdmin(
+    @Req() request: Request,
+    @Body() registerAdminDto: RegisterAdminDto,
+  ): Promise<any> {
+    const token = request.headers.authorization?.split(' ')[1];
+    return this.authService.registerAdmin(token, registerAdminDto);
+  }
+
+  @Get('all-admin')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get all admin accounts' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of admin accounts',
+    type: [RegisterAdminDto], // Or a more specific response DTO if needed
+  })
+  async getAllAdmin(@Req() request: Request): Promise<any> {
+    const token = request.headers.authorization?.split(' ')[1];
+    return this.authService.getAllAdmin(token);
   }
 
   @Post('verify-otp')
