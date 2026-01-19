@@ -24,11 +24,33 @@ import { LoginDto } from './dto/login.dto.js';
 import { RefreshTokenDto } from './dto/refresh-token.dto.js';
 import { ForgotPasswordDto } from './dto/forgot-password.dto.js';
 import { ResetPasswordDto } from './dto/reset-password.dto.js';
+import { FcmTokenDto } from './dto/fcm-token.dto.js';
 
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
+
+  @Post('fcm-token')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update user FCM token' })
+  @ApiResponse({
+    status: 200,
+    description: 'FCM token updated successfully',
+    schema: {
+      properties: {
+        message: { type: 'string' },
+      },
+    },
+  })
+  async fcmToken(
+    @Req() request: Request,
+    @Body() fcmTokenDto: FcmTokenDto,
+  ): Promise<any> {
+    const token = request.headers.authorization?.split(' ')[1];
+    return this.authService.fcmToken(token, fcmTokenDto);
+  }
 
   @Post('register')
   @ApiOperation({ summary: 'Register new account' })

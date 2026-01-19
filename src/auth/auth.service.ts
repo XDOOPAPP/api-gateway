@@ -11,6 +11,7 @@ import { ResendOtpDto } from './dto/resend-otp.dto.js';
 import { RefreshTokenDto } from './dto/refresh-token.dto.js';
 import { ForgotPasswordDto } from './dto/forgot-password.dto.js';
 import { ResetPasswordDto } from './dto/reset-password.dto.js';
+import { FcmTokenDto } from './dto/fcm-token.dto.js';
 
 @Injectable()
 export class AuthService {
@@ -193,4 +194,25 @@ export class AuthService {
       this.handleError(error, 'Token verification failed');
     }
   }
+
+  async fcmToken(token: string, fcmTokenDto: FcmTokenDto): Promise<any> {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.post(
+          `${this.authServiceUrl}/fcm-token`,
+          fcmTokenDto,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        ),
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`[AuthService] Update FCM token error:`, error.message);
+      this.handleError(error, 'Failed to update FCM token');
+    }
+  }
+
 }
