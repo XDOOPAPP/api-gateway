@@ -26,6 +26,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto.js';
 import { ResetPasswordDto } from './dto/reset-password.dto.js';
 import { FcmTokenDto } from './dto/fcm-token.dto.js';
 import { RegisterAdminDto } from './dto/register-admin.dto.js';
+import { Roles } from '../common/decorators/roles.decorator.js';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -71,6 +72,7 @@ export class AuthController {
   @Post('register-admin')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Register new admin account' })
   @ApiResponse({
     status: 200,
@@ -92,6 +94,7 @@ export class AuthController {
   @Get('all-admin')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Get all admin accounts' })
   @ApiResponse({
     status: 200,
