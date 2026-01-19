@@ -14,6 +14,7 @@ import { firstValueFrom } from 'rxjs';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../common/guards/roles.guard.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
+import { Roles } from '../common/decorators/roles.decorator.js';
 
 @ApiTags('OCR')
 @Controller('ocr')
@@ -63,6 +64,16 @@ export class OcrsController {
   ): Promise<any> {
     return firstValueFrom(
       this.ocrClient.send('ocr.find_one', { jobId, userId }),
+    );
+  }
+
+  // Admin endpoints
+  @Get('admin/stats')
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Get OCR statistics for admin' })
+  async getAdminStats(): Promise<any> {
+    return firstValueFrom(
+      this.ocrClient.send('ocr.admin_stats', {}),
     );
   }
 }

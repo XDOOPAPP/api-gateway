@@ -16,6 +16,7 @@ import { firstValueFrom } from 'rxjs';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../common/guards/roles.guard.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
+import { Roles } from '../common/decorators/roles.decorator.js';
 
 @ApiTags('Expenses')
 @Controller('expenses')
@@ -90,6 +91,16 @@ export class ExpensesController {
   ): Promise<any> {
     return firstValueFrom(
       this.expenseClient.send('expense.remove', { id, userId }),
+    );
+  }
+
+  // Admin endpoints
+  @Get('admin/stats')
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Get expense statistics for admin' })
+  async getAdminStats(): Promise<any> {
+    return firstValueFrom(
+      this.expenseClient.send('expense.admin_stats', {}),
     );
   }
 }

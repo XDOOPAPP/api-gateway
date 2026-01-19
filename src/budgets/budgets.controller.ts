@@ -101,4 +101,15 @@ export class BudgetsController {
       this.budgetClient.send('budget.progress', { id, userId }),
     );
   }
+
+  // Admin endpoints
+  @Get('admin/stats')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Get budget statistics for admin' })
+  async getAdminStats(): Promise<unknown> {
+    return firstValueFrom(
+      this.budgetClient.send('budget.admin_stats', {}),
+    );
+  }
 }
