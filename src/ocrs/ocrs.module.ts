@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService, ConfigModule } from '@nestjs/config';
 import { OcrsController } from './ocrs.controller';
+import { AuthModule } from '../auth/auth.module.js';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { OcrsController } from './ocrs.controller';
         inject: [ConfigService],
       },
     ]),
+    AuthModule,
   ],
   controllers: [OcrsController],
 })

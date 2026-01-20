@@ -8,6 +8,7 @@ import { SubscriptionService } from './subscription.service.js';
   imports: [HttpModule, ConfigModule],
   controllers: [SubscriptionController],
   providers: [SubscriptionService],
+  exports: [SubscriptionService],
 })
-export class SubscriptionModule {}
+export class SubscriptionModule { }
 

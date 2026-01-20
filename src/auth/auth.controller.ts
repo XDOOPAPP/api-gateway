@@ -16,7 +16,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import type { Request } from 'express';
-import { AuthService } from './auth.service.js';
+import { AuthClient } from './auth.client.js';
 import { RegisterDto } from './dto/register.dto.js';
 import { VerifyOtpDto } from './dto/verify-otp.dto.js';
 import { ResendOtpDto } from './dto/resend-otp.dto.js';
@@ -31,7 +31,7 @@ import { Roles } from '../common/decorators/roles.decorator.js';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authClient: AuthClient) { }
 
   @Post('fcm-token')
   @ApiBearerAuth()
@@ -51,7 +51,7 @@ export class AuthController {
     @Body() fcmTokenDto: FcmTokenDto,
   ): Promise<any> {
     const token = request.headers.authorization?.split(' ')[1];
-    return this.authService.fcmToken(token, fcmTokenDto);
+    return this.authClient.fcmToken(token, fcmTokenDto);
   }
 
   @Post('register')
@@ -66,7 +66,7 @@ export class AuthController {
     },
   })
   async register(@Body() registerDto: RegisterDto): Promise<any> {
-    return this.authService.register(registerDto);
+    return this.authClient.register(registerDto);
   }
 
   @Post('register-admin')
@@ -88,7 +88,7 @@ export class AuthController {
     @Body() registerAdminDto: RegisterAdminDto,
   ): Promise<any> {
     const token = request.headers.authorization?.split(' ')[1];
-    return this.authService.registerAdmin(token, registerAdminDto);
+    return this.authClient.registerAdmin(token, registerAdminDto);
   }
 
   @Get('all-admin')
@@ -103,7 +103,7 @@ export class AuthController {
   })
   async getAllAdmin(@Req() request: Request): Promise<any> {
     const token = request.headers.authorization?.split(' ')[1];
-    return this.authService.getAllAdmin(token);
+    return this.authClient.getAllAdmin(token);
   }
 
   @Post('verify-otp')
@@ -119,7 +119,7 @@ export class AuthController {
     },
   })
   async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto): Promise<any> {
-    return this.authService.verifyOtp(verifyOtpDto);
+    return this.authClient.verifyOtp(verifyOtpDto);
   }
 
   @Post('resend-otp')
@@ -134,7 +134,7 @@ export class AuthController {
     },
   })
   async resendOtp(@Body() resendOtpDto: ResendOtpDto): Promise<any> {
-    return this.authService.resendOtp(resendOtpDto);
+    return this.authClient.resendOtp(resendOtpDto);
   }
 
   @Post('login')
@@ -150,7 +150,7 @@ export class AuthController {
     },
   })
   async login(@Body() loginDto: LoginDto): Promise<any> {
-    return this.authService.login(loginDto);
+    return this.authClient.login(loginDto);
   }
 
   @Post('refresh')
@@ -165,7 +165,7 @@ export class AuthController {
     },
   })
   async refresh(@Body() refreshTokenDto: RefreshTokenDto): Promise<any> {
-    return this.authService.refresh(refreshTokenDto);
+    return this.authClient.refresh(refreshTokenDto);
   }
 
   @Get('me')
@@ -189,7 +189,7 @@ export class AuthController {
     if (!token) {
       throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
     }
-    return this.authService.getProfile(token);
+    return this.authClient.getProfile(token);
   }
 
   @Post('forgot-password')
@@ -206,7 +206,7 @@ export class AuthController {
   async forgotPassword(
     @Body() forgotPasswordDto: ForgotPasswordDto,
   ): Promise<any> {
-    return this.authService.forgotPassword(forgotPasswordDto);
+    return this.authClient.forgotPassword(forgotPasswordDto);
   }
 
   @Post('reset-password')
@@ -223,7 +223,7 @@ export class AuthController {
   async resetPassword(
     @Body() resetPasswordDto: ResetPasswordDto,
   ): Promise<any> {
-    return this.authService.resetPassword(resetPasswordDto);
+    return this.authClient.resetPassword(resetPasswordDto);
   }
 
   @Post('verify')
@@ -246,6 +246,6 @@ export class AuthController {
     if (!token) {
       throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
     }
-    return this.authService.verifyToken(token);
+    return this.authClient.verifyToken(token);
   }
 }

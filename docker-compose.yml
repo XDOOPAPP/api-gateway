@@ -1,14 +1,13 @@
-version: '3.8'
-
 # =============================================================================
-# FEPA API Gateway + Auth Service
+# FEPA API Gateway
 # =============================================================================
-# QUAN TRỌNG: Chạy infrastructure trước!
+# QUAN TRỌNG: Khởi chạy infrastructure và auth-service trước!
 # cd deployment && docker-compose -f docker-compose.infra.yml up -d
+# cd ../auth-service && docker-compose up -d
 # =============================================================================
 
 services:
-  # API Gateway
+  # API Gateway 
   api-gateway:
     build:
       context: .
@@ -30,45 +29,9 @@ services:
       - PAYMENT_SERVICE_PORT=3101
       - NOTIFICATION_SERVICE_HOST=fepa-notification-service
       - NOTIFICATION_SERVICE_PORT=3006
-    depends_on:
-      auth-service:
-        condition: service_started
     networks:
       - fepa-network
     restart: on-failure
-    # Note: Volume mounts commented out to avoid anonymous volume caching issues
-    # The anonymous volume for node_modules persists old dependencies even after rebuilding
-    # Uncomment these for hot-reload development (but run `docker-compose down -v` when changing deps)
-    # volumes:
-    #   - .:/app
-    #   - /app/node_modules
-
-    # Auth Service (Express.js + MongoDB)
-  auth-service:
-    build:
-      context: ../auth-service
-      dockerfile: Dockerfile
-    container_name: fepa-auth-service
-    ports:
-      - '3001:3001'
-    environment:
-      - NODE_ENV=development
-      - PORT=3001
-      - MONGO_URL=mongodb://fepa:fepa123@fepa-mongodb:27017/fepa_auth?authSource=admin
-      - RABBITMQ_URL=amqp://fepa:fepa123@fepa-rabbitmq:5672
-      - JWT_SECRET=${JWT_SECRET:-fepa-key}
-      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your-refresh-secret-change-in-production}
-      - JWT_EXPIRATION=${JWT_EXPIRATION:-24h}
-      - EMAIL_USER=vvq0522@gmail.com
-      - EMAIL_PASS=pyzewbsumidnrqsw
-      - ADMIN_EMAIL=admin@fepa.com
-      - ADMIN_PASSWORD=AdminPassword123
-    networks:
-      - fepa-network
-    restart: on-failure
-    # volumes:  # Comment out for production or if node_modules not installed locally
-    #   - ../auth-service:/app
-    #   - /app/node_modules
 
 networks:
   fepa-network:
