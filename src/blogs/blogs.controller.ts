@@ -63,6 +63,32 @@ export class BlogsController {
     );
   }
 
+  // ========== STATISTICS ENDPOINTS (Must be before :id routes) ==========
+
+  @Get('statistics/status')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Get blog statistics by status (Admin only) - For pie chart' })
+  async getStatusStatistics(): Promise<any> {
+    return firstValueFrom(
+      this.blogClient.send('blog.statistics.status', {}),
+    );
+  }
+
+  @Get('statistics/monthly')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Get monthly blog statistics (Admin only) - For column chart' })
+  async getMonthlyStatistics(@Query('year') year?: string): Promise<any> {
+    return firstValueFrom(
+      this.blogClient.send('blog.statistics.monthly', { 
+        year: year ? parseInt(year) : undefined 
+      }),
+    );
+  }
+
   @Get('slug/:slug')
   @ApiOperation({ summary: 'Get blog by slug (Public)' })
   async findBySlug(@Param('slug') slug: string): Promise<any> {
