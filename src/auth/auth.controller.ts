@@ -2,7 +2,10 @@ import {
   Controller,
   Post,
   Get,
+  Delete,
   Body,
+  Param,
+  Patch,
   UseGuards,
   HttpException,
   HttpStatus,
@@ -247,5 +250,91 @@ export class AuthController {
       throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
     }
     return this.authClient.verifyToken(token);
+  }
+
+  // User Management CRUD Endpoints
+
+  @Get('users')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get all users' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of users',
+    schema: {
+      properties: {
+        data: { type: 'array' },
+      },
+    },
+  })
+  async getAllUsers(@Req() request: Request): Promise<any> {
+    const token = request.headers.authorization?.split(' ')[1];
+    if (!token) {
+      throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
+    }
+    return this.authClient.getAllUsers(token);
+  }
+
+  @Delete('users/:userId')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Delete user (Admin only)' })
+  @ApiResponse({
+    status: 200,
+    description: 'User deleted successfully',
+    schema: {
+      properties: {
+        message: { type: 'string' },
+      },
+    },
+  })
+  async deleteUser(
+    @Req() request: Request,
+    @Param('userId') userId: string,
+  ): Promise<any> {
+    const token = request.headers.authorization?.split(' ')[1];
+    if (!token) {
+      throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
+    }
+    return this.authClient.deleteUser(token, userId);
+  }
+
+  @Patch('users/:userId/deactivate')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Deactivate user account' })
+  @ApiResponse({
+    status: 200,
+    description: 'User deactivated',
+  })
+  async deactivateUser(
+    @Req() request: Request,
+    @Param('userId') userId: string,
+  ): Promise<any> {
+    const token = request.headers.authorization?.split(' ')[1];
+    if (!token) {
+      throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
+    }
+    return this.authClient.deactivateUser(token, userId);
+  }
+
+  @Patch('users/:userId/reactivate')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Reactivate user account' })
+  @ApiResponse({
+    status: 200,
+    description: 'User reactivated',
+  })
+  async reactivateUser(
+    @Req() request: Request,
+    @Param('userId') userId: string,
+  ): Promise<any> {
+    const token = request.headers.authorization?.split(' ')[1];
+    if (!token) {
+      throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
+    }
+    return this.authClient.reactivateUser(token, userId);
   }
 }

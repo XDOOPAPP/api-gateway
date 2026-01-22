@@ -218,4 +218,66 @@ export class AuthClient {
         }
         return features;
     }
+
+    // User Management CRUD Methods
+
+    async getAllUsers(token: string): Promise<any> {
+        try {
+            const response = await firstValueFrom(
+                this.httpService.get(`${this.authServiceUrl}/users`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                }),
+            );
+            return response.data;
+        } catch (error) {
+            this.handleError(error, 'Failed to fetch users');
+        }
+    }
+
+    async deleteUser(token: string, userId: string): Promise<any> {
+        try {
+            const response = await firstValueFrom(
+                this.httpService.delete(`${this.authServiceUrl}/users/${userId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                }),
+            );
+            return response.data;
+        } catch (error) {
+            this.handleError(error, 'Failed to delete user');
+        }
+    }
+
+    async deactivateUser(token: string, userId: string): Promise<any> {
+        try {
+            const response = await firstValueFrom(
+                this.httpService.patch(
+                    `${this.authServiceUrl}/users/${userId}/deactivate`,
+                    {},
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                    },
+                ),
+            );
+            return response.data;
+        } catch (error) {
+            this.handleError(error, 'Failed to deactivate user');
+        }
+    }
+
+    async reactivateUser(token: string, userId: string): Promise<any> {
+        try {
+            const response = await firstValueFrom(
+                this.httpService.patch(
+                    `${this.authServiceUrl}/users/${userId}/reactivate`,
+                    {},
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                    },
+                ),
+            );
+            return response.data;
+        } catch (error) {
+            this.handleError(error, 'Failed to reactivate user');
+        }
+    }
 }
