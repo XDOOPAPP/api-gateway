@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   UseGuards,
   HttpException,
   HttpStatus,
@@ -217,6 +218,81 @@ export class SubscriptionController {
     }
     const userId = (request as any).user?.userId;
     return this.subscriptionService.getStats(token, userId);
+  }
+
+  @Get('stats/revenue-over-time')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Get revenue over time for charting' })
+  @ApiResponse({
+    status: 200,
+    description: 'Revenue statistics over time',
+    schema: {
+      properties: {
+        period: { type: 'string', enum: ['daily', 'weekly', 'monthly'] },
+        days: { type: 'number' },
+        data: { type: 'array' },
+      },
+    },
+  })
+  async getRevenueOverTime(
+    @Req() request: Request,
+    @Query('period') period: string = 'daily',
+    @Query('days') days: string = '30',
+  ): Promise<any> {
+    const token = request.headers.authorization?.split(' ')[1];
+    if (!token) {
+      throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
+    }
+    return this.subscriptionService.getRevenueOverTime(token, period, parseInt(days));
+  }
+
+  @Get('stats/total-revenue')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Get total revenue statistics' })
+  @ApiResponse({
+    status: 200,
+    description: 'Total revenue statistics',
+    schema: {
+      properties: {
+        totalRevenue: { type: 'number' },
+        activeSubscriptions: { type: 'number' },
+        cancelledSubscriptions: { type: 'number' },
+        totalSubscriptions: { type: 'number' },
+      },
+    },
+  })
+  async getTotalRevenueStats(@Req() request: Request): Promise<any> {
+    const token = request.headers.authorization?.split(' ')[1];
+    if (!token) {
+      throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
+    }
+    return this.subscriptionService.getTotalRevenueStats(token);
+  }
+
+  @Get('stats/revenue-by-plan')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Get revenue statistics by plan' })
+  @ApiResponse({
+    status: 200,
+    description: 'Revenue by plan statistics',
+    schema: {
+      properties: {
+        data: { type: 'array' },
+      },
+    },
+  })
+  async getRevenueByPlan(@Req() request: Request): Promise<any> {
+    const token = request.headers.authorization?.split(' ')[1];
+    if (!token) {
+      throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
+    }
+    return this.subscriptionService.getRevenueByPlan(token);
   }
 }
 
