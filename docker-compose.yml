@@ -1,14 +1,13 @@
-version: '3.8'
-
 # =============================================================================
-# FEPA API Gateway + Auth Service
+# FEPA API Gateway
 # =============================================================================
-# QUAN TRỌNG: Chạy infrastructure trước!
+# QUAN TRỌNG: Khởi chạy infrastructure và auth-service trước!
 # cd deployment && docker-compose -f docker-compose.infra.yml up -d
+# cd ../auth-service && docker-compose up -d
 # =============================================================================
 
 services:
-  # API Gateway
+  # API Gateway 
   api-gateway:
     build:
       context: .
@@ -17,56 +16,39 @@ services:
     ports:
       - '3000:3000'
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - PORT=3000
       - RABBITMQ_URL=amqp://fepa:fepa123@fepa-rabbitmq:5672
       - JWT_SECRET=${JWT_SECRET:-fepa-key}
       - JWT_EXPIRATION=${JWT_EXPIRATION:-24h}
       - AUTH_SERVICE_HOST=fepa-auth-service
       - AUTH_SERVICE_PORT=3001
+      - EXPENSE_SERVICE_HOST=expense-service
+      - EXPENSE_SERVICE_PORT=3002
+      - BUDGET_SERVICE_HOST=budget-service
+      - BUDGET_SERVICE_PORT=3003
+      - BLOG_SERVICE_HOST=blog-service
+      - BLOG_SERVICE_PORT=3004
       - SUBSCRIPTION_SERVICE_HOST=fepa-subscription-service
       - SUBSCRIPTION_SERVICE_PORT=3005
-      - PAYMENT_SERVICE_HOST=fepa-payment-service
-      - PAYMENT_SERVICE_PORT=3101
       - NOTIFICATION_SERVICE_HOST=fepa-notification-service
       - NOTIFICATION_SERVICE_PORT=3006
+      - PAYMENT_SERVICE_HOST=fepa-payment-service
+      - PAYMENT_SERVICE_PORT=3101
+      - OCR_SERVICE_HOST=ocr-service
+      - OCR_SERVICE_PORT=3007
+      - AI_SERVICE_HOST=ai-service
+      - AI_SERVICE_PORT=3008
     depends_on:
-      auth-service:
-        condition: service_started
+      mongodb:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - fepa-network
-    restart: on-failure
-    # Note: Volume mounts commented out to avoid anonymous volume caching issues
-    # The anonymous volume for node_modules persists old dependencies even after rebuilding
-    # Uncomment these for hot-reload development (but run `docker-compose down -v` when changing deps)
-    # volumes:
-    #   - .:/app
-    #   - /app/node_modules
-
-    # Auth Service (Express.js + MongoDB)
-  auth-service:
-    build:
-      context: ../auth-service
-      dockerfile: Dockerfile
-    container_name: fepa-auth-service
-    ports:
-      - '3001:3001'
-    environment:
-      - NODE_ENV=development
-      - PORT=3001
-      - MONGO_URL=mongodb://fepa:fepa123@fepa-mongodb:27017/fepa_auth?authSource=admin
-      - RABBITMQ_URL=amqp://fepa:fepa123@fepa-rabbitmq:5672
-      - JWT_SECRET=${JWT_SECRET:-fepa-key}
-      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your-refresh-secret-change-in-production}
-      - JWT_EXPIRATION=${JWT_EXPIRATION:-24h}
-      - EMAIL_USER=vvq0522@gmail.com
-      - EMAIL_PASS=pyzewbsumidnrqsw
-    networks:
-      - fepa-network
-    restart: on-failure
-    # volumes:  # Comment out for production or if node_modules not installed locally
-    #   - ../auth-service:/app
-    #   - /app/node_modules
+    restart: on-failure:5
 
 networks:
   fepa-network:

@@ -15,6 +15,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../common/guards/roles.guard.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
+import { FeatureGuard } from '../common/guards/feature.guard.js';
 
 @ApiTags('OCR')
 @Controller('ocr')
@@ -26,6 +27,7 @@ export class OcrsController {
   ) { }
 
   @Post('scan')
+  @UseGuards(FeatureGuard('OCR'))
   @ApiOperation({
     summary: 'Scan invoice (QR code or OCR text)',
     description: 'Scans invoice image with QR-first approach. Attempts QR code detection first (Vietnamese e-invoice format), falls back to OCR text recognition if QR not found. Returns job ID for tracking.'

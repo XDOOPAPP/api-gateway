@@ -14,6 +14,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { FeatureGuard } from '../common/guards/feature.guard.js';
 
 @ApiTags('AI')
 @Controller('ai')
@@ -23,6 +24,7 @@ export class AiController {
   constructor(@Inject('AI_SERVICE') private readonly aiClient: ClientProxy) { }
 
   @Post('categorize')
+  @UseGuards(FeatureGuard('AI'))
   @ApiOperation({
     summary: 'Auto-categorize expense using AI',
     description:
@@ -38,6 +40,7 @@ export class AiController {
   }
 
   @Get('predict-spending')
+  @UseGuards(FeatureGuard('AI'))
   @ApiOperation({
     summary: 'Predict future spending',
     description:
@@ -53,6 +56,7 @@ export class AiController {
   }
 
   @Get('anomalies')
+  @UseGuards(FeatureGuard('AI'))
   @ApiOperation({
     summary: 'Detect unusual expenses',
     description:
@@ -68,6 +72,7 @@ export class AiController {
   }
 
   @Get('budget-alerts')
+  @UseGuards(FeatureGuard('AI'))
   @ApiOperation({
     summary: 'Get smart budget alerts',
     description:
@@ -82,6 +87,7 @@ export class AiController {
   }
 
   @Post('assistant/chat')
+  @UseGuards(FeatureGuard('AI'))
   @ApiOperation({
     summary: 'Chat with AI financial assistant (Gemini 2.0)',
     description:
@@ -97,6 +103,7 @@ export class AiController {
   }
 
   @Get('insights')
+  @UseGuards(FeatureGuard('AI'))
   @ApiOperation({
     summary: 'Get AI-powered financial insights',
     description:

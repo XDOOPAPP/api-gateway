@@ -176,36 +176,14 @@ export class SubscriptionService {
     }
   }
 
-  async checkFeature(token: string, userId: string, feature: string) {
+  async getInternalUserFeatures(userId: string) {
     try {
       const response = await firstValueFrom(
-        this.httpService.get(`${this.subscriptionServiceUrl}/check`, {
-          params: { feature },
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'x-user-id': userId,
-          },
-        }),
+        this.httpService.get(`${this.subscriptionServiceUrl}/internal/user-features/${userId}`),
       );
       return response.data;
     } catch (error) {
-      this.handleError(error, 'Failed to check feature');
-    }
-  }
-
-  async getUserFeatures(token: string, userId: string) {
-    try {
-      const response = await firstValueFrom(
-        this.httpService.get(`${this.subscriptionServiceUrl}/features`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'x-user-id': userId,
-          },
-        }),
-      );
-      return response.data;
-    } catch (error) {
-      this.handleError(error, 'Failed to fetch user features');
+      this.handleError(error, 'Failed to fetch internal user features');
     }
   }
 

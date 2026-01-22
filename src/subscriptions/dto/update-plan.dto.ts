@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsNumber, IsBoolean, IsArray, IsEnum } from 'class-validator';
+import { IsOptional, IsString, IsNumber, IsBoolean, IsEnum, IsObject } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { PlanInterval } from './create-plan.dto.js';
 
@@ -18,11 +18,10 @@ export class UpdatePlanDto {
   @IsOptional()
   interval?: PlanInterval;
 
-  @ApiProperty({ example: ['feature1', 'feature2'], required: false })
-  @IsArray()
-  @IsString({ each: true })
+  @ApiProperty({ example: { OCR: true, AI: true }, required: false })
+  @IsObject()
   @IsOptional()
-  features?: string[];
+  features?: Record<string, boolean>;
 
   @ApiProperty({ example: false, required: false })
   @IsBoolean()
@@ -34,4 +33,3 @@ export class UpdatePlanDto {
   @IsOptional()
   isActive?: boolean;
 }
-

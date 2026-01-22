@@ -6,7 +6,6 @@ import {
   Delete,
   Body,
   Param,
-  Query,
   UseGuards,
   HttpException,
   HttpStatus,
@@ -124,34 +123,6 @@ export class SubscriptionController {
     return this.subscriptionService.getHistory(token, userId);
   }
 
-  @Get('check')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Check if user has access to a feature' })
-  @ApiResponse({
-    status: 200,
-    description: 'Feature access check result',
-    schema: {
-      properties: {
-        allowed: { type: 'boolean' },
-      },
-    },
-  })
-  async checkFeature(
-    @Req() request: Request,
-    @Query('feature') feature: string,
-  ): Promise<any> {
-    const token = request.headers.authorization?.split(' ')[1];
-    if (!token) {
-      throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
-    }
-    if (!feature) {
-      throw new HttpException('Feature parameter is required', HttpStatus.BAD_REQUEST);
-    }
-    const userId = (request as any).user?.userId;
-    return this.subscriptionService.checkFeature(token, userId, feature);
-  }
-
   @Get('features')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
@@ -161,12 +132,8 @@ export class SubscriptionController {
     description: 'User features list',
   })
   async getUserFeatures(@Req() request: Request): Promise<any> {
-    const token = request.headers.authorization?.split(' ')[1];
-    if (!token) {
-      throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
-    }
     const userId = (request as any).user?.userId;
-    return this.subscriptionService.getUserFeatures(token, userId);
+    return this.subscriptionService.getInternalUserFeatures(userId);
   }
 
   // Admin endpoints (require auth)
