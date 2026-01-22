@@ -6,6 +6,7 @@ import {
   Body,
   Param,
   Patch,
+  Query,
   UseGuards,
   HttpException,
   HttpStatus,
@@ -303,6 +304,7 @@ export class AuthController {
   @Patch('users/:userId/deactivate')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Deactivate user account' })
   @ApiResponse({
     status: 200,
@@ -322,6 +324,7 @@ export class AuthController {
   @Patch('users/:userId/reactivate')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Reactivate user account' })
   @ApiResponse({
     status: 200,
@@ -337,4 +340,60 @@ export class AuthController {
     }
     return this.authClient.reactivateUser(token, userId);
   }
+
+  // Statistics Endpoints
+
+  @Get('stats/users-over-time')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Get users over time for charting' })
+  @ApiResponse({
+    status: 200,
+    description: 'User statistics over time',
+    schema: {
+      properties: {
+        period: { type: 'string', enum: ['daily', 'weekly', 'monthly'] },
+        days: { type: 'number' },
+        data: { type: 'array' },
+      },
+    },
+  })
+  async getUsersOverTime(
+    @Req() request: Request,
+    @Query('period') period: string = 'daily',
+    @Query('days') days: string = '30',
+  ): Promise<any> {
+    const token = request.headers.authorization?.split(' ')[1];
+    if (!token) {
+      throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
+    }
+    return this.authClient.getUsersOverTime(token, period, parseInt(days));
+  }
+
+  @Get('stats/total')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Get total users statistics' })
+  @ApiResponse({
+    status: 200,
+    description: 'Total users statistics',
+    schema: {
+      properties: {
+        total: { type: 'number' },
+        verified: { type: 'number' },
+        admin: { type: 'number' },
+        user: { type: 'number' },
+      },
+    },
+  })
+  async getTotalUsersStats(@Req() request: Request): Promise<any> {
+    const token = request.headers.authorization?.split(' ')[1];
+    if (!token) {
+      throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
+    }
+    return this.authClient.getTotalUsersStats(token);
+  }
+
 }

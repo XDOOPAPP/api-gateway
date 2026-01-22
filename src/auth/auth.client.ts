@@ -280,4 +280,36 @@ export class AuthClient {
             this.handleError(error, 'Failed to reactivate user');
         }
     }
+
+    // Statistics Methods
+
+    async getUsersOverTime(token: string, period: string = 'daily', days: number = 30): Promise<any> {
+        try {
+            const response = await firstValueFrom(
+                this.httpService.get(
+                    `${this.authServiceUrl}/stats/users-over-time?period=${period}&days=${days}`,
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                    },
+                ),
+            );
+            return response.data;
+        } catch (error) {
+            this.handleError(error, 'Failed to fetch users over time statistics');
+        }
+    }
+
+    async getTotalUsersStats(token: string): Promise<any> {
+        try {
+            const response = await firstValueFrom(
+                this.httpService.get(`${this.authServiceUrl}/stats/total`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                }),
+            );
+            return response.data;
+        } catch (error) {
+            this.handleError(error, 'Failed to fetch total users statistics');
+        }
+    }
+
 }
