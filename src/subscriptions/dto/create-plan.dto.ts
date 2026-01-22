@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsNumber, IsBoolean, IsArray, IsEnum, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, IsBoolean, IsEnum, IsOptional, IsObject } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export enum PlanInterval {
@@ -23,10 +23,10 @@ export class CreatePlanDto {
     @IsNotEmpty()
     interval: PlanInterval;
 
-    @ApiProperty({ example: ['feature1', 'feature2', 'feature3'] })
-    @IsArray()
-    @IsString({ each: true })
-    features: string[];
+    @ApiProperty({ example: { OCR: true, AI: true } })
+    @IsObject()
+    @IsNotEmpty()
+    features: Record<string, boolean>;
 
     @ApiProperty({ example: false })
     @IsBoolean()
@@ -38,4 +38,3 @@ export class CreatePlanDto {
     @IsOptional()
     isActive?: boolean;
 }
-
