@@ -208,6 +208,50 @@ export class AuthClient {
         }
     }
 
+    async changePassword(token: string, changePasswordDto: any): Promise<any> {
+        try {
+            const response = await firstValueFrom(
+                this.httpService.post(
+                    `${this.authServiceUrl}/change-password`,
+                    changePasswordDto,
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                    },
+                ),
+            );
+            return response.data;
+        } catch (error) {
+            this.handleError(error, 'Failed to change password');
+        }
+    }
+
+    async updateProfile(token: string, updateProfileDto: any, avatarFile?: Express.Multer.File): Promise<any> {
+        try {
+            const formData = new FormData();
+            if (updateProfileDto.email) formData.append('email', updateProfileDto.email);
+            if (updateProfileDto.fullName) formData.append('fullName', updateProfileDto.fullName);
+            if (avatarFile) {
+                const blob = new Blob([(avatarFile.buffer as any)], { type: avatarFile.mimetype });
+                formData.append('avatar', blob, avatarFile.originalname);
+            }
+
+            const response = await firstValueFrom(
+                this.httpService.post(
+                    `${this.authServiceUrl}/update-profile`,
+                    formData,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    },
+                ),
+            );
+            return response.data;
+        } catch (error) {
+            this.handleError(error, 'Failed to update profile');
+        }
+    }
+
     async getCachedFeatures(userId: string): Promise<any> {
         if (this.featureCache.has(userId)) {
             return this.featureCache.get(userId);
