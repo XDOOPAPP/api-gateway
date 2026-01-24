@@ -177,6 +177,27 @@ export class AuthController {
     return this.authClient.refresh(refreshTokenDto);
   }
 
+  @Post('logout')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Logout and revoke refresh token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Logout successful',
+    schema: {
+      properties: {
+        message: { type: 'string' },
+      },
+    },
+  })
+  async logout(
+    @Req() request: Request,
+    @Body() logoutDto: RefreshTokenDto,
+  ): Promise<any> {
+    const token = request.headers.authorization?.split(' ')[1];
+    return this.authClient.logout(token, logoutDto);
+  }
+
   @Get('me')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)

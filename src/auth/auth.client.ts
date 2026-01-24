@@ -137,6 +137,19 @@ export class AuthClient {
         }
     }
 
+    async logout(token: string, logoutDto: any): Promise<any> {
+        try {
+            const response = await firstValueFrom(
+                this.httpService.post(`${this.authServiceUrl}/logout`, logoutDto, {
+                    headers: { Authorization: `Bearer ${token}` },
+                }),
+            );
+            return response.data;
+        } catch (error) {
+            this.handleError(error, 'Logout failed');
+        }
+    }
+
     async getProfile(token: string): Promise<any> {
         try {
             const response = await firstValueFrom(
