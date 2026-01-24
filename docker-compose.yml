@@ -39,16 +39,10 @@ services:
       - OCR_SERVICE_PORT=3007
       - AI_SERVICE_HOST=ai-service
       - AI_SERVICE_PORT=3008
-    depends_on:
-      mongodb:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+    
     networks:
       - fepa-network
-    restart: on-failure:5
+    restart: on-failure
 
 networks:
   fepa-network:
