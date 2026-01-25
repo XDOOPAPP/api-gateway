@@ -41,13 +41,8 @@ services:
       - OCR_SERVICE_PORT=3007
       - AI_SERVICE_HOST=ai-service
       - AI_SERVICE_PORT=3008
-    depends_on:
-      mongodb:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+      - UPLOAD_DIR=/app/uploads
+      - API_GATEWAY_URL=http://fepa-api-gateway:3000
     networks:
       - fepa-network
     restart: on-failure
