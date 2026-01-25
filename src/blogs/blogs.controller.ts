@@ -21,12 +21,14 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
 import { RolesGuard } from '../common/guards/roles.guard.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
+import { BlogUploadService } from './upload.service.js';
 
 @ApiTags('Blogs')
 @Controller('blogs')
 export class BlogsController {
   constructor(
     @Inject('BLOG_SERVICE') private readonly blogClient: ClientProxy,
+    private readonly uploadService: BlogUploadService,
   ) { }
 
   // ========== USER ENDPOINTS ==========
@@ -184,9 +186,8 @@ export class BlogsController {
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload single image' })
   async uploadSingle(@UploadedFile() file: Express.Multer.File): Promise<any> {
-    return firstValueFrom(
-      this.blogClient.send('upload.single', { file }),
-    );
+    const url = this.uploadService.saveFile(file);
+    return { url };
   }
 
   @Post('upload/multiple')
@@ -196,8 +197,7 @@ export class BlogsController {
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload multiple images (max 10)' })
   async uploadMultiple(@UploadedFiles() files: Express.Multer.File[]): Promise<any> {
-    return firstValueFrom(
-      this.blogClient.send('upload.multiple', { files }),
-    );
+    const urls = this.uploadService.saveFiles(files);
+    return { urls };
   }
 }
