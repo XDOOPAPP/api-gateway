@@ -258,5 +258,53 @@ export class SubscriptionService {
       this.handleError(error, 'Failed to fetch stats');
     }
   }
+
+  async getRevenueOverTime(token: string, period: string = 'daily', days: number = 30): Promise<any> {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(
+          `${this.subscriptionServiceUrl}/stats/revenue-over-time?period=${period}&days=${days}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        ),
+      );
+      return response.data;
+    } catch (error) {
+      this.handleError(error, 'Failed to fetch revenue over time');
+    }
+  }
+
+  async getTotalRevenueStats(token: string): Promise<any> {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(`${this.subscriptionServiceUrl}/stats/total-revenue`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }),
+      );
+      return response.data;
+    } catch (error) {
+      this.handleError(error, 'Failed to fetch total revenue stats');
+    }
+  }
+
+  async getRevenueByPlan(token: string): Promise<any> {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(`${this.subscriptionServiceUrl}/stats/revenue-by-plan`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }),
+      );
+      return response.data;
+    } catch (error) {
+      this.handleError(error, 'Failed to fetch revenue by plan');
+    }
+  }
 }
 

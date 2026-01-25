@@ -41,8 +41,6 @@ services:
       - OCR_SERVICE_PORT=3007
       - AI_SERVICE_HOST=ai-service
       - AI_SERVICE_PORT=3008
-      - UPLOAD_DIR=/app/uploads
-      - API_GATEWAY_URL=http://fepa-api-gateway:3000
     depends_on:
       mongodb:
         condition: service_healthy
@@ -52,7 +50,7 @@ services:
         condition: service_healthy
     networks:
       - fepa-network
-    restart: on-failure:5
+    restart: on-failure
 
 networks:
   fepa-network:

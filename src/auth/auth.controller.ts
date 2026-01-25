@@ -11,6 +11,8 @@ import {
   HttpException,
   HttpStatus,
   Req,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -20,6 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import type { Request } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthClient } from './auth.client.js';
 import { RegisterDto } from './dto/register.dto.js';
 import { VerifyOtpDto } from './dto/verify-otp.dto.js';
@@ -30,6 +33,8 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto.js';
 import { ResetPasswordDto } from './dto/reset-password.dto.js';
 import { FcmTokenDto } from './dto/fcm-token.dto.js';
 import { RegisterAdminDto } from './dto/register-admin.dto.js';
+import { ChangePasswordDto } from './dto/change-password.dto.js';
+import { UpdateProfileDto } from './dto/update-profile.dto.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
 
 @ApiTags('Authentication')
@@ -172,6 +177,27 @@ export class AuthController {
     return this.authClient.refresh(refreshTokenDto);
   }
 
+  @Post('logout')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Logout and revoke refresh token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Logout successful',
+    schema: {
+      properties: {
+        message: { type: 'string' },
+      },
+    },
+  })
+  async logout(
+    @Req() request: Request,
+    @Body() logoutDto: RefreshTokenDto,
+  ): Promise<any> {
+    const token = request.headers.authorization?.split(' ')[1];
+    return this.authClient.logout(token, logoutDto);
+  }
+
   @Get('me')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
@@ -194,6 +220,40 @@ export class AuthController {
       throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
     }
     return this.authClient.getProfile(token);
+  }
+
+  @Post('update-profile')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('avatar'))
+  @ApiOperation({ summary: 'Update user profile' })
+  @ApiResponse({
+    status: 200,
+    description: 'Profile updated successfully',
+  })
+  async updateProfile(
+    @Req() request: Request,
+    @Body() updateProfileDto: UpdateProfileDto,
+    @UploadedFile() avatar?: Express.Multer.File,
+  ): Promise<any> {
+    const token = request.headers.authorization?.split(' ')[1];
+    return this.authClient.updateProfile(token, updateProfileDto, avatar);
+  }
+
+  @Post('change-password')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Change user password' })
+  @ApiResponse({
+    status: 200,
+    description: 'Password changed successfully',
+  })
+  async changePassword(
+    @Req() request: Request,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ): Promise<any> {
+    const token = request.headers.authorization?.split(' ')[1];
+    return this.authClient.changePassword(token, changePasswordDto);
   }
 
   @Post('forgot-password')
