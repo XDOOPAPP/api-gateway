@@ -3,6 +3,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService, ConfigModule } from '@nestjs/config';
 import { OcrsController } from './ocrs.controller';
 import { AuthModule } from '../auth/auth.module.js';
+import { OcrUploadService } from './upload.service.js';
 
 @Module({
   imports: [
@@ -26,5 +27,6 @@ import { AuthModule } from '../auth/auth.module.js';
     AuthModule,
   ],
   controllers: [OcrsController],
+  providers: [OcrUploadService],
 })
 export class OcrsModule { }

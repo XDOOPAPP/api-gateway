@@ -2,12 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 import helmet from 'helmet';
 import compression from 'compression';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const logger = new Logger('Bootstrap');
 
   // CORS Configuration
@@ -24,8 +26,20 @@ async function bootstrap() {
   });
 
   // Security middleware
-  app.use(helmet());
+  app.use(helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow serving static files
+  }));
   app.use(compression());
+
+  // Serve static files from uploads directory
+  const uploadPath = process.env.UPLOAD_DIR || '/app/uploads';
+  app.useStaticAssets(uploadPath, {
+    prefix: '/uploads/',
+    setHeaders: (res) => {
+      res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+    },
+  });
+  logger.log(`📁 Static files serving from: ${uploadPath} at /uploads`);
 
   // Global prefix
   app.setGlobalPrefix('api/v1');
