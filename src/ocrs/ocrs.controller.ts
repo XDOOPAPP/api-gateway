@@ -7,15 +7,19 @@ import {
   Query,
   Inject,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { firstValueFrom } from 'rxjs';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../common/guards/roles.guard.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
 import { FeatureGuard } from '../common/guards/feature.guard.js';
+import { OcrUploadService } from './upload.service.js';
 
 @ApiTags('OCR')
 @Controller('ocr')
@@ -24,20 +28,44 @@ import { FeatureGuard } from '../common/guards/feature.guard.js';
 export class OcrsController {
   constructor(
     @Inject('OCR_SERVICE') private readonly ocrClient: ClientProxy,
+    private readonly uploadService: OcrUploadService,
   ) { }
 
   @Post('scan')
   @UseGuards(FeatureGuard('OCR'))
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary: 'Scan invoice (QR code or OCR text)',
-    description: 'Scans invoice image with QR-first approach. Attempts QR code detection first (Vietnamese e-invoice format), falls back to OCR text recognition if QR not found. Returns job ID for tracking.'
+    description: 'Upload invoice image for scanning. Attempts QR code detection first (Vietnamese e-invoice format), falls back to OCR text recognition if QR not found. Returns job ID for tracking.'
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Invoice image file (JPEG, PNG, WEBP, max 10MB)'
+        }
+      },
+      required: ['file']
+    }
   })
   async scan(
-    @Body() body: any,
+    @UploadedFile() file: Express.Multer.File,
     @CurrentUser('userId') userId: string,
   ): Promise<any> {
+    // Save file to uploads/ocr directory
+    const relativeUrl = this.uploadService.saveFile(file);
+    
+    // Convert to absolute URL for OCR service to download
+    // In Docker: http://api-gateway:3000/uploads/ocr/xxx.jpg
+    const fileUrl = this.uploadService.getAbsoluteUrl(relativeUrl);
+
+    // Send to OCR service for processing
     return firstValueFrom(
-      this.ocrClient.send('ocr.scan', { ...body, userId }),
+      this.ocrClient.send('ocr.scan', { fileUrl, userId }),
     );
   }
 

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { BlogsController } from './blogs.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
+import { BlogUploadService } from './upload.service.js';
 
 @Module({
   imports: [
@@ -23,5 +24,6 @@ import { ConfigService } from '@nestjs/config';
     ]),
   ],
   controllers: [BlogsController],
+  providers: [BlogUploadService],
 })
 export class BlogsModule { }
