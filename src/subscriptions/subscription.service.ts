@@ -240,7 +240,7 @@ export class SubscriptionService {
         }
     }
 
-    async getRevenueOverTime(token: string, period: string = 'daily', days: number = 30): Promise<any> {
+    async getRevenueOverTime(token: string, userId: string, period: string = 'daily', days: number = 30): Promise<any> {
         try {
             const response = await firstValueFrom(
                 this.httpService.get(
@@ -248,6 +248,7 @@ export class SubscriptionService {
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
+                            'x-user-id': userId,
                         },
                     },
                 ),
@@ -258,12 +259,13 @@ export class SubscriptionService {
         }
     }
 
-    async getTotalRevenueStats(token: string): Promise<any> {
+    async getTotalRevenueStats(token: string, userId: string): Promise<any> {
         try {
             const response = await firstValueFrom(
                 this.httpService.get(`${this.subscriptionServiceUrl}/stats/total-revenue`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        'x-user-id': userId,
                     },
                 }),
             );
@@ -273,12 +275,13 @@ export class SubscriptionService {
         }
     }
 
-    async getRevenueByPlan(token: string): Promise<any> {
+    async getRevenueByPlan(token: string, userId: string): Promise<any> {
         try {
             const response = await firstValueFrom(
                 this.httpService.get(`${this.subscriptionServiceUrl}/stats/revenue-by-plan`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        'x-user-id': userId,
                     },
                 }),
             );

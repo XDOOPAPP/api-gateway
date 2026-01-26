@@ -192,6 +192,7 @@ export class SubscriptionController {
     ): Promise<any> {
         return this.subscriptionService.getRevenueOverTime(
             this.getToken(request),
+            this.getUserId(request),
             query.period,
             query.days,
         );
@@ -204,7 +205,7 @@ export class SubscriptionController {
     @ApiOperation({ summary: 'Get total revenue breakdown (Admin)' })
     @ApiResponse({ status: 200, description: 'Total revenue statistics' })
     async getTotalRevenueStats(@Req() request: Request): Promise<any> {
-        return this.subscriptionService.getTotalRevenueStats(this.getToken(request));
+        return this.subscriptionService.getTotalRevenueStats(this.getToken(request), this.getUserId(request));
     }
 
     @Get('stats/revenue-by-plan')
@@ -214,6 +215,6 @@ export class SubscriptionController {
     @ApiOperation({ summary: 'Get revenue statistics by plan (Admin)' })
     @ApiResponse({ status: 200, description: 'Revenue by plan statistics' })
     async getRevenueByPlan(@Req() request: Request): Promise<any> {
-        return this.subscriptionService.getRevenueByPlan(this.getToken(request));
+        return this.subscriptionService.getRevenueByPlan(this.getToken(request), this.getUserId(request));
     }
 }
