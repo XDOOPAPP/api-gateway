@@ -36,6 +36,7 @@ import { RegisterAdminDto } from './dto/register-admin.dto.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
+import { UserStatsQueryDto } from './dto/user-stats-query.dto.js';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -421,14 +422,13 @@ export class AuthController {
   })
   async getUsersOverTime(
     @Req() request: Request,
-    @Query('period') period: string = 'daily',
-    @Query('days') days: string = '30',
+    @Query() query: UserStatsQueryDto,
   ): Promise<any> {
     const token = request.headers.authorization?.split(' ')[1];
     if (!token) {
       throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);
     }
-    return this.authClient.getUsersOverTime(token, period, parseInt(days));
+    return this.authClient.getUsersOverTime(token, query.period, query.days);
   }
 
   @Get('stats/total')
@@ -443,7 +443,6 @@ export class AuthController {
       properties: {
         total: { type: 'number' },
         verified: { type: 'number' },
-        admin: { type: 'number' },
         user: { type: 'number' },
       },
     },
