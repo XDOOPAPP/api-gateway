@@ -56,12 +56,8 @@ export class OcrsController {
     @UploadedFile() file: Express.Multer.File,
     @CurrentUser('userId') userId: string,
   ): Promise<any> {
-    // Save file to uploads/ocr directory
-    const relativeUrl = this.uploadService.saveFile(file);
-    
-    // Convert to absolute URL for OCR service to download
-    // In Docker: http://api-gateway:3000/uploads/ocr/xxx.jpg
-    const fileUrl = this.uploadService.getAbsoluteUrl(relativeUrl);
+    // Upload file to Cloudinary and get URL
+    const fileUrl = await this.uploadService.saveFile(file);
 
     // Send to OCR service for processing
     return firstValueFrom(

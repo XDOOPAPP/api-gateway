@@ -1,27 +1,20 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as fs from 'fs';
-import * as path from 'path';
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
+import * as streamifier from 'streamifier';
 
 @Injectable()
 export class BlogUploadService {
-    private readonly uploadDir: string;
     private readonly maxFileSize = 5 * 1024 * 1024; // 5MB for blog images
     private readonly allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
 
     constructor(private configService: ConfigService) {
-        // Separate directory for blog uploads
-        this.uploadDir = path.join(
-            this.configService.get('UPLOAD_DIR') || '/app/uploads',
-            'blog'
-        );
-        this.ensureUploadDir();
-    }
-
-    private ensureUploadDir() {
-        if (!fs.existsSync(this.uploadDir)) {
-            fs.mkdirSync(this.uploadDir, { recursive: true });
-        }
+        // Cấu hình Cloudinary
+        cloudinary.config({
+            cloud_name: this.configService.get('CLOUDINARY_CLOUD_NAME'),
+            api_key: this.configService.get('CLOUDINARY_API_KEY'),
+            api_secret: this.configService.get('CLOUDINARY_API_SECRET'),
+        });
     }
 
     validateFile(file: Express.Multer.File): void {
@@ -42,41 +35,48 @@ export class BlogUploadService {
         }
     }
 
-    saveFile(file: Express.Multer.File): string {
+    async saveFile(file: Express.Multer.File): Promise<string> {
         this.validateFile(file);
 
-        const timestamp = Date.now();
-        const randomString = Math.random().toString(36).substring(2, 8);
-        const ext = path.extname(file.originalname);
-        const filename = `${timestamp}-${randomString}${ext}`;
-        const filepath = path.join(this.uploadDir, filename);
-
-        fs.writeFileSync(filepath, file.buffer);
-
-        // Return URL path that will be accessible via static serving
-        return `/uploads/blog/${filename}`;
+        return new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+                {
+                    folder: 'fepa/blogs',
+                    resource_type: 'image',
+                },
+                (error, result: UploadApiResponse | undefined) => {
+                    if (error) {
+                        reject(new BadRequestException(`Upload failed: ${error.message}`));
+                    } else if (result) {
+                        resolve(result.secure_url);
+                    } else {
+                        reject(new BadRequestException('Upload failed: No result'));
+                    }
+                },
+            );
+            streamifier.createReadStream(file.buffer).pipe(uploadStream);
+        });
     }
 
-    saveFiles(files: Express.Multer.File[]): string[] {
-        return files.map(file => this.saveFile(file));
+    async saveFiles(files: Express.Multer.File[]): Promise<string[]> {
+        return Promise.all(files.map(file => this.saveFile(file)));
     }
 
-    deleteFile(fileUrl: string): void {
+    async deleteFile(fileUrl: string): Promise<void> {
         try {
-            // Extract filename from URL (e.g., /uploads/blog/123-abc.jpg -> 123-abc.jpg)
-            const filename = fileUrl.split('/').pop();
-            if (!filename) return;
-
-            const filepath = path.join(this.uploadDir, filename);
-            if (fs.existsSync(filepath)) {
-                fs.unlinkSync(filepath);
+            // Extract public_id from Cloudinary URL
+            // URL format: https://res.cloudinary.com/{cloud}/image/upload/v123/fepa/blogs/filename.jpg
+            const matches = fileUrl.match(/\/fepa\/blogs\/([^.]+)/);
+            if (matches && matches[1]) {
+                const publicId = `fepa/blogs/${matches[1]}`;
+                await cloudinary.uploader.destroy(publicId);
             }
         } catch (error) {
-            console.error('Error deleting file:', error);
+            console.error('Error deleting file from Cloudinary:', error);
         }
     }
 
-    deleteFiles(fileUrls: string[]): void {
-        fileUrls.forEach((url) => this.deleteFile(url));
+    async deleteFiles(fileUrls: string[]): Promise<void> {
+        await Promise.all(fileUrls.map(url => this.deleteFile(url)));
     }
 }

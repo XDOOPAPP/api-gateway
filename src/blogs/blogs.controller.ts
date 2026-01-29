@@ -186,7 +186,7 @@ export class BlogsController {
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload single image' })
   async uploadSingle(@UploadedFile() file: Express.Multer.File): Promise<any> {
-    const url = this.uploadService.saveFile(file);
+    const url = await this.uploadService.saveFile(file);
     return { url };
   }
 
@@ -197,7 +197,7 @@ export class BlogsController {
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload multiple images (max 10)' })
   async uploadMultiple(@UploadedFiles() files: Express.Multer.File[]): Promise<any> {
-    const urls = this.uploadService.saveFiles(files);
+    const urls = await this.uploadService.saveFiles(files);
     return { urls };
   }
 }

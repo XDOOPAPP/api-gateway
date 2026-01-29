@@ -1,27 +1,20 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as fs from 'fs';
-import * as path from 'path';
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
+import * as streamifier from 'streamifier';
 
 @Injectable()
 export class OcrUploadService {
-    private readonly uploadDir: string;
     private readonly maxFileSize = 10 * 1024 * 1024; // 10MB for images
     private readonly allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
     constructor(private configService: ConfigService) {
-        // Separate directory for OCR uploads
-        this.uploadDir = path.join(
-            this.configService.get('UPLOAD_DIR') || '/app/uploads',
-            'ocr'
-        );
-        this.ensureUploadDir();
-    }
-
-    private ensureUploadDir() {
-        if (!fs.existsSync(this.uploadDir)) {
-            fs.mkdirSync(this.uploadDir, { recursive: true });
-        }
+        // Cấu hình Cloudinary
+        cloudinary.config({
+            cloud_name: this.configService.get('CLOUDINARY_CLOUD_NAME'),
+            api_key: this.configService.get('CLOUDINARY_API_KEY'),
+            api_secret: this.configService.get('CLOUDINARY_API_SECRET'),
+        });
     }
 
     validateFile(file: Express.Multer.File): void {
@@ -42,47 +35,48 @@ export class OcrUploadService {
         }
     }
 
-    saveFile(file: Express.Multer.File): string {
+    async saveFile(file: Express.Multer.File): Promise<string> {
         this.validateFile(file);
 
-        const timestamp = Date.now();
-        const randomString = Math.random().toString(36).substring(2, 8);
-        const ext = path.extname(file.originalname);
-        const filename = `${timestamp}-${randomString}${ext}`;
-        const filepath = path.join(this.uploadDir, filename);
-
-        fs.writeFileSync(filepath, file.buffer);
-
-        // Return URL path that will be accessible via static serving
-        return `/uploads/ocr/${filename}`;
+        return new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+                {
+                    folder: 'fepa/ocr',
+                    resource_type: 'image',
+                },
+                (error, result: UploadApiResponse | undefined) => {
+                    if (error) {
+                        reject(new BadRequestException(`Upload failed: ${error.message}`));
+                    } else if (result) {
+                        resolve(result.secure_url);
+                    } else {
+                        reject(new BadRequestException('Upload failed: No result'));
+                    }
+                },
+            );
+            streamifier.createReadStream(file.buffer).pipe(uploadStream);
+        });
     }
 
     /**
-     * Convert relative URL to absolute URL for OCR service to download
-     * In Docker environment, use internal service name
+     * Cloudinary URL đã là URL tuyệt đối, không cần convert
+     * Giữ lại method này để tương thích với code cũ
      */
-    getAbsoluteUrl(relativeUrl: string): string {
-        // Get API Gateway URL from env (for Docker: http://api-gateway:3000)
-        const gatewayUrl = this.configService.get('API_GATEWAY_URL') || 'http://localhost:3000';
-        
-        // Remove leading slash if present
-        const cleanUrl = relativeUrl.startsWith('/') ? relativeUrl.slice(1) : relativeUrl;
-        
-        return `${gatewayUrl}/${cleanUrl}`;
+    getAbsoluteUrl(cloudinaryUrl: string): string {
+        return cloudinaryUrl;
     }
 
-    deleteFile(fileUrl: string): void {
+    async deleteFile(fileUrl: string): Promise<void> {
         try {
-            // Extract filename from URL (e.g., /uploads/ocr/123-abc.jpg -> 123-abc.jpg)
-            const filename = fileUrl.split('/').pop();
-            if (!filename) return;
-
-            const filepath = path.join(this.uploadDir, filename);
-            if (fs.existsSync(filepath)) {
-                fs.unlinkSync(filepath);
+            // Extract public_id from Cloudinary URL
+            // URL format: https://res.cloudinary.com/{cloud}/image/upload/v123/fepa/ocr/filename.jpg
+            const matches = fileUrl.match(/\/fepa\/ocr\/([^.]+)/);
+            if (matches && matches[1]) {
+                const publicId = `fepa/ocr/${matches[1]}`;
+                await cloudinary.uploader.destroy(publicId);
             }
         } catch (error) {
-            console.error('Error deleting file:', error);
+            console.error('Error deleting file from Cloudinary:', error);
         }
     }
 }
