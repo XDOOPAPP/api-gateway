@@ -43,6 +43,9 @@ services:
       - AI_SERVICE_PORT=3008
       - UPLOAD_DIR=/app/uploads
       - API_GATEWAY_URL=http://fepa-api-gateway:3000
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
     networks:
       - fepa-network
     restart: on-failure
